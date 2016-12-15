@@ -5,13 +5,19 @@
 
 var world = new function(){
     this.worldObjects = [];
-    this.actios = [];
+    this.lol = "lel";
+    this.actions = [];
     this.actionHistory = [];
     var wosInfo = [
         {name:"apple", imageSource:"???"},
         {name:"cookie", imageSource:"???"},
         {name:"tumor", imageSource:"???"}
-    ]; //KUVAT LISÄTTÄVÄ
+    ];
+//    var actionsInfo = [
+//        {name:"eat", target:"apple", imageSoucre:"???"},
+//        {name:"eat", target:"cookie", imageSoucre:"???"},
+//        {name:"request", target:"tumor", imageSoucre:"???"}
+//    ];
     var actionsInfo = [
         {name:"eat", target:"apple", imageSoucre:"???"},
         {name:"eat", target:"cookie", imageSoucre:"???"},
@@ -24,27 +30,45 @@ var world = new function(){
         addActions();
     };
     this.wasDone = function(action){
-        return actionHistory.some(function(histAct){
+        return world.actionHistory.some(function(histAct){
             return histAct.name === action.name && histAct.targetWo.name ===
                     action.targetWo.name;
         });
     };
     var addWorldObjects = function(){
-        for(var woInfo in wosInfo){
-            this.worldObjects.push(createWorldObject(woInfo.name, woInfo.imageSource));
+        var woInfo;
+        for(var i = 0; i < wosInfo.length; i++){
+            woInfo = wosInfo[i];
+            //this.worldObjects.push(createWorldObject(woInfo.name, woInfo.imageSource));
+            assert.isDef(woInfo);
+            assert.isDef(woInfo.name);
+            assert.isDef(woInfo.imageSource);
+            //console.log(woInfo.imageSource);
+            world.worldObjects.push(createWorldObject(woInfo.name, woInfo.imageSource));
         }
     };
     var addActions = function(){
-        for(var ai in actionsInfo){
-            this.actions.push(
+        var ai;
+        for(var i = 0; i < actionsInfo.length; i++){
+            ai = actionsInfo[i];
+            //this.actions.push(
+            //console.log("ai name " + ai.name);
+            assert.isDef(actionsInfo);
+            assert.isDef(ai);
+            assert.isDef(ai.target);
+            assert.isDef(ai.imageSource);
+            world.actions.push(
                 createAction(ai.name, ai.imageSource, ai.target, world)
             );
         }
+        console.log(world.actions);
     };
 };
 
 function setImageSources(worldThings, wtTypeString){
-    for(var wt in worldThings){
+    var wt;
+    for(var i = 0; i < worldThings.length; i++){
+        wt = worldThings[i];
         wt.imageSource = "images/" + wt.name + "_" + wtTypeString + ".png";
     }
 }
@@ -60,7 +84,7 @@ function createWorldObject(name, imageSource){
 function createAction(name, imageSrc, targetWo, world){
     var ac = {
         name:name,
-        image:imageSrc,
+        imageSource:imageSrc,
         target:targetWo,
         execute:function(){
             world.actionHistory.push(ac);
