@@ -44,11 +44,12 @@ var taskManager = new function(){
         return world.wasDone(task);
     };
     
-    //TÄLLÄ HETKELLÄ TASK ON SAMA KUIN ACTION, MUTTA TÄMÄ MUUTTUU KUN TASKIT VOIVAT HYVÄKSYÄ USEITA KOHTEITA
     var generateNewTask = function(){
         var actions = world.actions;
         assert.arrHasContent(actions);
-        var newTask = randomFromArray(actions);
+        var newAction = randomFromArray(actions);
+        var newTarget = randomFromArray(newAction.targets);
+        var newTask = createTask(newAction, newTarget);
         return newTask;
     };
     
@@ -72,4 +73,15 @@ var taskManager = new function(){
         return arr[Math.floor(Math.random()*arr.length)];
     };
     
+    var createTask = function(action, targetWo){
+        var t = {
+            action:action,
+            target:targetWo,
+            execute:function(){
+                world.taskHistory.push({action:action.name, target:targetWo.name});
+                alert("Action " + action.name + " with target " + targetWo.name + "has been acted!");
+            }
+        };
+        return t;
+    };
 };

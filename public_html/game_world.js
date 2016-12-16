@@ -2,26 +2,21 @@
 
 //Action is the type of action which is allowed.
 //World object is a type of object.
+//Task is a structure with action and specific type of world object
 
 var world = new function(){
     this.worldObjects = [];
     this.lol = "lel";
     this.actions = [];
-    this.actionHistory = [];
+    this.taskHistory = [];//element: {action:(name), target:(name)}
     var wosInfo = [
         {name:"apple", imageSource:"???"},
         {name:"cookie", imageSource:"???"},
         {name:"tumor", imageSource:"???"}
     ];
-//    var actionsInfo = [
-//        {name:"eat", target:"apple", imageSoucre:"???"},
-//        {name:"eat", target:"cookie", imageSoucre:"???"},
-//        {name:"request", target:"tumor", imageSoucre:"???"}
-//    ];
     var actionsInfo = [
-        {name:"eat", target:"apple", imageSoucre:"???"},
-        {name:"eat", target:"cookie", imageSoucre:"???"},
-        {name:"request", target:"tumor", imageSoucre:"???"}
+        {name:"eat", targets:["apple", "cookie"], imageSoucre:"???"},
+        {name:"request", targets:["tumor"], imageSoucre:"???"}
     ];
     this.initialize = function(){
         setImageSources(actionsInfo, "action");
@@ -29,10 +24,19 @@ var world = new function(){
         addWorldObjects();
         addActions();
     };
-    this.wasDone = function(action){
-        return world.actionHistory.some(function(histAct){
-            return histAct.name === action.name && histAct.targetWo.name ===
-                    action.targetWo.name;
+    //MUUTETTAVA TASK-KOHTAISEKSI
+//    this.wasDone = function(action){
+//        return world.taskHistory.some(function(histAct){
+//            return histAct.name === action.name && histAct.targetWo.name ===
+//                    action.targetWo.name;
+//        });
+//    };
+    //UUSI VERSIO, KESKEN
+    this.wasDone = function(task){
+        return world.taskHistory.some(function(histTask){
+            return histTask.name === task.name && histTask.targetWos.some(function(aTargetWo){
+                return aTargetWo.name === task.name;
+            });
         });
     };
     var addWorldObjects = function(){
@@ -55,10 +59,10 @@ var world = new function(){
             //console.log("ai name " + ai.name);
             assert.isDef(actionsInfo);
             assert.isDef(ai);
-            assert.isDef(ai.target);
+            assert.isDef(ai.targets);
             assert.isDef(ai.imageSource);
             world.actions.push(
-                createAction(ai.name, ai.imageSource, ai.target, world)
+                createAction(ai.name, ai.imageSource, ai.targets, world)
             );
         }
         //console.log(world.actions);
@@ -81,15 +85,12 @@ function createWorldObject(name, imageSource){
     return wo;
 }
 
-function createAction(name, imageSrc, targetWo, world){
+//EI PITÄISI OLLA EXECUTIONIA? KOSKA SE ON VAI TASKISSA
+function createAction(name, imageSrc, targetWos, world){
     var ac = {
         name:name,
         imageSource:imageSrc,
-        target:targetWo,
-        execute:function(){
-            world.actionHistory.push(ac);
-            alert("Action " + name + "has been acted!");
-        }
+        targets:targetWos
     };
     return ac;
 }

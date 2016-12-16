@@ -58,8 +58,15 @@ var ui = new function(){
 //            img.attr('width', 300);
 //            img.attr('height', 300);
             img.attr('alt', o.name + " image");
+            img.attr('class', "world-thing-image");
             element.append(img);
         }
+        $('.world-thing-image').on('click', function(){
+            assert.isDef($(this));
+            console.log($(this));
+            assert.isDef($(this).attr('alt'));
+            console.log($(this).attr('alt'));
+        });
     };
     
     var onActionExecutionButton = function(){
