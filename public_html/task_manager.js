@@ -2,7 +2,7 @@
 
 var taskManager = new function(){
     
-    var defaultTaskTime = 10;
+    var defaultTaskTime = 10;//seconds
     var secondsLeft = defaultTaskTime;
     var currentTask;
     
@@ -11,16 +11,19 @@ var taskManager = new function(){
     this.initialize = function(){
         currentTask = generateNewTask();
         displayTask(currentTask);
-        oncePerS = window.setInterval(secondPassed, defaultTaskTime);
+        //console.log("intervalli asetetaan");
+        oncePerS = window.setInterval(secondPassed, 1000);//PITÄISI OLLA SETTIMEOUT
+        //console.log("intervalli asetettu");
     };
     
     var secondPassed = function(){
         secondsLeft += -1;
+        //console.log("seconds left: " + secondsLeft);
         //ui.changeTimerTime(secondsLeft);
         var spEvent = new CustomEvent('secondPassed', {'detail': secondsLeft});
         document.dispatchEvent(spEvent);
         if(secondsLeft <= 0){
-            window.clearInterval(oncePerS);
+            window.clearInterval(oncePerS);//PITÄISI OLLA SETTIMEOUT
             taskTimeUp();
         }
     };
@@ -31,9 +34,9 @@ var taskManager = new function(){
             languageManager.addNewRule();
             var newTask = generateNewTask();
             displayTask(newTask);
-            oncePerS = window.setInterval(secondPassed, defaultTaskTime);
+            oncePerS = window.setInterval(secondPassed, defaultTaskTime);//PITÄISI OLLA SETTIMEOUT
         }else{
-            alert("Game over, motherfucker!");
+            alert("Game over!");
         }
     };
     

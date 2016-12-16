@@ -20,7 +20,10 @@ var ui = new function(){
         });
 
         document.addEventListener('secondPassed', function(e){
-            ui.changeTimerTime(e.detail.secondsLeft);//TOIMIIKO?
+            //console.log("secondPassed has been heard");
+            assert.isDef(e);
+            assert.isDef(e.detail);
+            ui.changeTimerTime(e.detail);//TOIMIIKO?
         });
         
         addImages(actionSelection, actions);
@@ -35,16 +38,19 @@ var ui = new function(){
     
     //PERFORMANTIMMAKSI VOISI MUUTTAA
     this.changeTimerTime = function(newTimeSeconds){
+        assert.isDef(newTimeSeconds)
         //murderChildren(instructionArea);
         timerArea.empty();
-        var timeText = document.createTextNode("Seconds left: " + newTimeSeconds);
-        timerArea.append(timeText);
+        //var timeText = document.createTextNode("Seconds left: " + newTimeSeconds);
+        //console.log("timeText: " + timeText);
+        //timerArea.append(timeText);
+        timerArea.append("Seconds left: " + newTimeSeconds);
     };
     
     var addImages = function(element, objects){
         var img;
         var o;
-        console.log(objects);
+        //console.log(objects);
         for(var i = 0; i < objects.length; i++){
             o = objects[i];
             img = $('<img>');

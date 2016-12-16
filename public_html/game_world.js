@@ -61,7 +61,7 @@ var world = new function(){
                 createAction(ai.name, ai.imageSource, ai.target, world)
             );
         }
-        console.log(world.actions);
+        //console.log(world.actions);
     };
 };
 
