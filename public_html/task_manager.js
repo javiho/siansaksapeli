@@ -6,13 +6,19 @@ var taskManager = new function(){
     var secondsLeft = defaultTaskTime;
     var currentTask;
     
-    var oncePerS;//ONKO TÄMÄ SIIS JOKU INTERVALLI VAI MIKÄ?
+    var oncePerS;//interval
     
     this.initialize = function(){
         currentTask = generateNewTask();
         displayTask(currentTask);
         //console.log("intervalli asetetaan");
         oncePerS = window.setInterval(secondPassed, 1000);//PITÄISI OLLA SETTIMEOUT
+        document.addEventListener('newDeedDone', function(e){
+            var d = e.detail;
+            if(areDeedsEqual(currentTask, d)){
+                reactToCompletedTask();
+            }
+        });
         //console.log("intervalli asetettu");
     };
     
@@ -31,17 +37,24 @@ var taskManager = new function(){
     var taskTimeUp = function(){
         alert("The time is up!");
         if(isTaskDone()){
-            languageManager.addNewRule();
-            var newTask = generateNewTask();
-            displayTask(newTask);
-            oncePerS = window.setInterval(secondPassed, defaultTaskTime);//PITÄISI OLLA SETTIMEOUT
+            reactToCompletedTask();
         }else{
             alert("Game over!");
         }
     };
     
+    //TARVITAANKO TÄTÄ?
     var isTaskDone = function(task){  
         return world.wasDone(task);
+    };
+    
+    var reactToCompletedTask = function(){
+        //HUOM! Pelin alun displayTask on eri kuin että task olisi tehty valmiiksi.
+        document.dispatchEvent(new CustomEvent('taskCompleted', {detail:currentTask}));
+        languageManager.addNewRule();
+        var newTask = generateNewTask();
+        displayTask(newTask);
+        oncePerS = window.setInterval(secondPassed, defaultTaskTime);//PITÄISI OLLA SETTIMEOUT
     };
     
     var generateNewTask = function(){
@@ -73,6 +86,7 @@ var taskManager = new function(){
         return arr[Math.floor(Math.random()*arr.length)];
     };
     
+    //TARVITAANKO EXECUTOINTIA TASKISSA?
     var createTask = function(action, targetWo){
         var t = {
             action:action,

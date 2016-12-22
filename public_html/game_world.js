@@ -1,14 +1,20 @@
 "use strict";
 
+//D:\projekteja\NetBeans-projekteja\SiansaksaPeli
+
 //Action is the type of action which is allowed.
 //World object is a type of object.
-//Task is a structure with action and specific type of world object
+//Deed is a structure with action and specific type of world object.
+//Task is a deed.
+
+//MIKSI OSA FUNKTIOISTA ON MAAILMAN SISÄLLÄ JA OSA ULKONA?
+//TODO: DEED TO STRING
 
 var world = new function(){
     this.worldObjects = [];
     this.lol = "lel";
     this.actions = [];
-    this.taskHistory = [];//element: {action:(name), target:(name)}
+    this.deedHistory = [];//element: {action:action, target:wo}
     var wosInfo = [
         {name:"apple", imageSource:"???"},
         {name:"cookie", imageSource:"???"},
@@ -31,13 +37,36 @@ var world = new function(){
 //                    action.targetWo.name;
 //        });
 //    };
-    //UUSI VERSIO, KESKEN
+    //UUSI VERSIO, KESKEN (??)
     this.wasDone = function(task){
-        return world.taskHistory.some(function(histTask){
+        return world.deedHistory.some(function(histTask){
             return histTask.name === task.name && histTask.targetWos.some(function(aTargetWo){
                 return aTargetWo.name === task.name;
             });
         });
+    };
+    this.createDeed = function(action, target){
+        return {
+            action:action,
+            target:target
+        };
+    };
+    this.isValidDeed = function(deed){
+        return world.actions.some(function(ac){
+            return ac.name === deed.name && ac.targetWos.some(function(targ){
+                return targ.name === deed.target.name;
+            });
+        });
+    };
+    this.attemptDeed = function(deed){
+        assert.isDef(deed);
+        var isValid = world.isValidDeed(deed);
+        if(!isValid){
+            var ev = new CustomEvent('invalidDeed', {detail:deed});
+            document.dispatchEvent(ev);
+        }else{
+            executeDeed(deed);
+        }
     };
     var addWorldObjects = function(){
         var woInfo;
@@ -67,6 +96,11 @@ var world = new function(){
         }
         //console.log(world.actions);
     };
+    var executeDeed = function(deed){
+        world.deedHistory.push({action:deed.action, target:deed.targetWo});
+        //alert("Action " + action.name + " with target " + targetWo.name + "has been acted!");
+        document.dispatchEvent(new CustomEvent('newDeedDone', {detail: deed}));
+    };
 };
 
 function setImageSources(worldThings, wtTypeString){
@@ -93,4 +127,8 @@ function createAction(name, imageSrc, targetWos, world){
         targets:targetWos
     };
     return ac;
+}
+
+function areDeedsEqual(d1, d2){
+    return d1.action.name === d2.action.name && d1.target.name === d1.target.name;
 }
