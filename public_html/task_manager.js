@@ -2,7 +2,7 @@
 
 var taskManager = new function(){
     
-    var defaultTaskTime = 10;//seconds
+    var defaultTaskTime = 1000;//seconds
     var secondsLeft = defaultTaskTime;
     var currentTask;
     
@@ -53,22 +53,28 @@ var taskManager = new function(){
         document.dispatchEvent(new CustomEvent('taskCompleted', {detail:currentTask}));
         languageManager.addNewRule();
         var newTask = generateNewTask();
-        displayTask(newTask);
+        currentTask = newTask;
+        displayTask(currentTask);
         oncePerS = window.setInterval(secondPassed, defaultTaskTime);//PITÄISI OLLA SETTIMEOUT
     };
     
     var generateNewTask = function(){
+        console.log("task generated");
         var actions = world.actions;
         assert.arrHasContent(actions);
         var newAction = randomFromArray(actions);
-        var newTarget = randomFromArray(newAction.targets);
+        var newTarget = randomFromArray(newAction.targetNames);
         var newTask = createTask(newAction, newTarget);
+        assert.areDef(newAction, newTarget, newTask);
+        assert.areDef(newTask.action, newTask.target);
         return newTask;
     };
     
     var displayTask = function(task){
+        console.log("about to display task");
         var inst = taskToInstruction(task);
         task.instructionText = inst;
+        assert.areDef(inst, task, task.action, task.target, task.action.name, task.target.name);
         //ui.changeInstructions(inst);
         var tgEvent = new CustomEvent('taskCreated', { 'detail': task}); //OIKEA PAIKKA?
         document.dispatchEvent(tgEvent);
@@ -88,13 +94,14 @@ var taskManager = new function(){
     
     //TARVITAANKO EXECUTOINTIA TASKISSA?
     var createTask = function(action, targetWo){
+        assert.areDef(action, targetWo);
         var t = {
             action:action,
             target:targetWo,
-            execute:function(){
-                world.taskHistory.push({action:action.name, target:targetWo.name});
-                alert("Action " + action.name + " with target " + targetWo.name + "has been acted!");
-            }
+//            execute:function(){
+//                world.taskHistory.push({action:action.name, target:targetWo.name});
+//                alert("Action " + action.name + " with target " + targetWo.name + "has been acted!");
+//            }
         };
         return t;
     };

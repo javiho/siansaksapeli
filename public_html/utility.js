@@ -21,5 +21,23 @@ var assert = {
         if(typeof obj === 'undefined'){
             throw mess;
         }
+    },
+    areDef: function(){
+        var a;
+        //console.log("arlen: " + arguments.length);
+        for(var i = 0; i < arguments.length; i++){
+            a = arguments[i];
+            if(!utility.isDef(a)){
+                throw "Error: argument #" + (i + 1) + " is undefined. asdasd";
+            }
+        }
+    },
+    isDeedDef: function(deed){
+        if(!utility.isDef(deed.action)){
+            throw "action undefined";
+        }
+        if(!utility.isDef(deed.target)){
+            throw "target undefined";
+        }
     }
 };

@@ -37,10 +37,12 @@ var ui = new function(){
         _objects = targets;
         _actions = actions;
         
-        document.addEventListener('taskCreate', function(e){
+        document.addEventListener('taskCreated', function(e){
+            console.log("taskCreated listened");
             var ti = e.detail.instructionText;
+            console.log("ti: " + ti);
             var gibberishedInst = languageManager.transformText(ti);
-            this.changeInstructions(gibberishedInst);//TOIMIIKO?
+            ui.changeInstructions(gibberishedInst);//TOIMIIKO?
         });
         document.addEventListener('secondPassed', function(e){
             //console.log("secondPassed has been heard");
@@ -66,9 +68,8 @@ var ui = new function(){
     };
     
     this.changeInstructions = function(instructions){
-        instructionArea.murderChildren();
-        var instText = document.createTextNode(instructions);
-        instructionArea.append(instText);
+        instructionArea.empty();
+        instructionArea.append("Your task: " + instructions);
     };
     
     //PERFORMANTIMMAKSI VOISI MUUTTAA
@@ -130,7 +131,9 @@ var ui = new function(){
                 " and target " + selectedTargetName);
         var selAc = getWtByName(selectedActionName);
         var selTarg = getWtByName(selectedTargetName);
+        assert.areDef(selAc, selTarg);
         var deed = world.createDeed(selAc, selTarg);
+        assert.isDeedDef(deed);
         //world.isValidDeed()
         world.attemptDeed(deed);
         /*
@@ -170,6 +173,7 @@ var ui = new function(){
             wt = _actions.find(isCorrect);
         }
         assert.isDef(wt);
+        return wt;
         function isCorrect(tempWt){
             return tempWt.name === wtName;
         }
