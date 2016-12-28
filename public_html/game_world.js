@@ -17,7 +17,7 @@
 var world = new function(){
     this.worldObjects = [];
     this.lol = "lel";
-    this.actions = [];//element: {name:string, targetNames:(strings)}
+    this.actions = [];//element: {name:string, targets:(worldObjects)}
     this.deedHistory = [];//element: {action:action, target:wo}
     var wosInfo = [
         {name:"apple", imageSource:"???"},
@@ -62,14 +62,15 @@ var world = new function(){
         assert.isDef(deed);
         assert.areDef(deed.action.name, deed.target.name);
         var isValid = world.actions.some(function(ac){
-            assert.areDef(ac, ac.targetNames);
-            console.log("ac.name: " + ac.name + ", deed.action.name: " + deed.action.name);
-            return ac.name === deed.action.name && ac.targetNames.some(function(targName){
-                assert.areDef(targName, deed.target.name);
-                return targName === deed.target.name;
+            assert.areDef(ac, ac.targets);
+            //console.log("ac.name: " + ac.name + ", deed.action.name: " + deed.action.name);
+            return ac.name === deed.action.name && ac.targets.some(function(targ){
+                assert.areDef(targ.name, deed.target.name);
+                //console.log("targ.name: " + targ.name + " deed.target.name: " + deed.target.name);
+                return targ.name === deed.target.name;
             });
         });
-        console.log("deed " + JSON.stringify(deed) + " validity: " + isValid);
+        //console.log("deed " + JSON.stringify(deed, null, 2) + " validity: " + isValid);
         return isValid;
     };
     this.attemptDeed = function(deed){
@@ -108,8 +109,12 @@ var world = new function(){
             assert.isDef(ai);
             assert.isDef(ai.targetNames);
             assert.isDef(ai.imageSource);
+            var targetWos = ai.targetNames.map(function(n){
+                return woNameToWo(n);
+            });
+            assert.isDef(targetWos);
             world.actions.push(
-                createAction(ai.name, ai.imageSource, ai.targetNames, world)
+                createAction(ai.name, ai.imageSource, targetWos, world)
             );
         }
         //console.log(world.actions);
@@ -120,15 +125,24 @@ var world = new function(){
         document.dispatchEvent(new CustomEvent('newDeedDone', {detail: deed}));
     };
     //EI PITÄISI OLLA EXECUTIONIA? KOSKA SE ON VAIN TASKISSA
-    var createAction = function(name, imageSrc, targetWoNames){
-        assert.isDef(targetWoNames);
+    var createAction = function(name, imageSrc, targetWos){
+        assert.isDef(targetWos);
         var ac = {
             name:name,
             imageSource:imageSrc,
-            targetNames:targetWoNames
+            targets:targetWos
         };
-        assert.areDef(ac.name, ac.imageSource, ac.targetNames);
+        assert.areDef(ac.name, ac.imageSource, ac.targets);
         return ac;
+    };
+    var woNameToWo = function(woName){
+        assert.areDef(woName);
+        assert.arrHasContent(world.worldObjects);
+        var wo = world.worldObjects.find(function(tempWo){
+            return tempWo.name === woName;
+        });
+        assert.isDef(wo);
+        return wo;
     };
 };
 
@@ -149,5 +163,5 @@ function createWorldObject(name, imageSource){
 }
 
 function areDeedsEqual(d1, d2){
-    return d1.action.name === d2.action.name && d1.target.name === d1.target.name;
+    return d1.action.name === d2.action.name && d1.target.name === d2.target.name;
 }

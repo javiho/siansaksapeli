@@ -8,10 +8,15 @@
 //
 //MIELIVALTAINEN TIMEOUT???
 //jQuery.ready aiheuttaa sen, että jos siellä sattuu virhe, se häviää jonnekin.
-//Sitten heitetään virhe 3853 funktionsta readyException, ja se on ainoa joka näkyy
+//Sitten heitetään virhe rivin 3853 funktiosta readyException, ja se on ainoa joka näkyy
 //selaimen konsolissa. Miten jQuery.ready-funktiota voi käyttää niin, että oikea
 //virheen lähde tulostetaan, pitää selvittää.
-console.log("initialization alkaa");
+//
+//assert.isCompletelyDefined({
+//    asd:"BAsd",
+//    lol:{lel:"Lel", lul:"Lul"}
+//});
+//console.log("initialization alkaa");
 window.onload = function(){
     console.log("loaded");
     world.initialize();

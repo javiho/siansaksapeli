@@ -1,5 +1,11 @@
 "use strict";
 
+/*
+ * BUGIT:
+ * Aika kuluu nopeasti.
+ * Kielensekoitussääntöjä ei sovelleta samalla tavalla tehtävien kuvauksiin.
+ */
+
 var taskManager = new function(){
     
     var defaultTaskTime = 1000;//seconds
@@ -17,6 +23,13 @@ var taskManager = new function(){
             var d = e.detail;
             if(areDeedsEqual(currentTask, d)){
                 reactToCompletedTask();
+            }else{
+                //EI OLE HYVÄ, ETTÄ TÄLLAINEN EVENTTI ON
+                //JOKO KÄYTTÖLIITTYMÄN PITÄSI KYSYÄ TASKMANAGERILTA VALMISTUMISESTA
+                //TAI VALMISTUMINEN PITÄISI SISÄLLYTTÄÄ EVENNTIN DETAILIIN
+                document.dispatchEvent(
+                        new CustomEvent('deedDoneButNotTaskCompleted', {'detail':d})
+                );
             }
         });
         //console.log("intervalli asetettu");
@@ -54,16 +67,19 @@ var taskManager = new function(){
         languageManager.addNewRule();
         var newTask = generateNewTask();
         currentTask = newTask;
+        assert.isDef(currentTask);
         displayTask(currentTask);
         oncePerS = window.setInterval(secondPassed, defaultTaskTime);//PITÄISI OLLA SETTIMEOUT
     };
     
     var generateNewTask = function(){
-        console.log("task generated");
+        //console.log("task generated");
         var actions = world.actions;
+        //console.log("actions: " + JSON.stringify(actions));
+        assert.isCompletelyDefined(actions);
         assert.arrHasContent(actions);
         var newAction = randomFromArray(actions);
-        var newTarget = randomFromArray(newAction.targetNames);
+        var newTarget = randomFromArray(newAction.targets);
         var newTask = createTask(newAction, newTarget);
         assert.areDef(newAction, newTarget, newTask);
         assert.areDef(newTask.action, newTask.target);
@@ -71,7 +87,8 @@ var taskManager = new function(){
     };
     
     var displayTask = function(task){
-        console.log("about to display task");
+        //console.log("about to display task");
+        assert.isDef(task);
         var inst = taskToInstruction(task);
         task.instructionText = inst;
         assert.areDef(inst, task, task.action, task.target, task.action.name, task.target.name);
@@ -81,23 +98,24 @@ var taskManager = new function(){
     };
     
     var taskToInstruction = function(task){
-        var action = task;
-        assert.isDef(action, "Is undefined");
-        assert.isDef(action.target, "Is undefined");
-        var inst = "Your next task is to " + action.name + " " + action.target.name;
+        assert.isDef(task.action, "Is undefined");
+        assert.isDef(task.target, "Is undefined");
+        assert.isDef(task.action.name);
+        var inst = "Your next task is to " + task.action.name + " " + task.target.name;
         return inst;
     };
     
     var randomFromArray = function(arr){
+        assert.arrHasContent(arr);
         return arr[Math.floor(Math.random()*arr.length)];
     };
     
     //TARVITAANKO EXECUTOINTIA TASKISSA?
     var createTask = function(action, targetWo){
-        assert.areDef(action, targetWo);
+        assert.areDef(action, targetWo, targetWo.name);
         var t = {
             action:action,
-            target:targetWo,
+            target:targetWo
 //            execute:function(){
 //                world.taskHistory.push({action:action.name, target:targetWo.name});
 //                alert("Action " + action.name + " with target " + targetWo.name + "has been acted!");

@@ -38,9 +38,9 @@ var ui = new function(){
         _actions = actions;
         
         document.addEventListener('taskCreated', function(e){
-            console.log("taskCreated listened");
+            //console.log("taskCreated listened");
             var ti = e.detail.instructionText;
-            console.log("ti: " + ti);
+            //console.log("ti: " + ti);
             var gibberishedInst = languageManager.transformText(ti);
             ui.changeInstructions(gibberishedInst);//TOIMIIKO?
         });
@@ -61,6 +61,11 @@ var ui = new function(){
         document.addEventListener('taskCompleted', function(e){
             var d = e.detail;
             alert("Task '" + d.action.name + " " + d.target.name + "' completed");
+        });
+        document.addEventListener('deedDoneButNotTaskCompleted', function(e){
+            var d = e.detail;
+            alert("You did: '" + d.action.name + " " + d.target.name + "', but " +
+                    "that wasn't your task.");
         });
         
         addImages(actionSelection, actions, "action");
@@ -127,8 +132,8 @@ var ui = new function(){
     
     var onActionExecutionButton = function(){
         //alert("action execution");
-        console.log("attempting to exectue with action " + selectedActionName +
-                " and target " + selectedTargetName);
+        //console.log("attempting to exectue with action " + selectedActionName +
+        //        " and target " + selectedTargetName);
         var selAc = getWtByName(selectedActionName);
         var selTarg = getWtByName(selectedTargetName);
         assert.areDef(selAc, selTarg);

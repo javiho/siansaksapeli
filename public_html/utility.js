@@ -8,11 +8,18 @@ var utility = {
 
 var assert = {
     arrHasContent: function(arr, message){
-        if(typeof arr === 'undefined' || arr.length === 0){
-            throw message;
+        utility.isDef(arr);
+        var m = message;
+        if(typeof message === 'undefined'){
+            m = "Error: array doesn't hava content.";
+        }
+        if(typeof arr === 'undefined'){
+            throw "Error: array is undefined";
+        }
+        if(arr.length === 0){
+            throw m;
         }
     },
-    //MAHDOLLISTETTAVA MIELIVALTAINEN MÄÄRÄ PARAMETREJA
     isDef: function(obj, message){
         var mess = message;
         if(typeof message === 'undefined'){
@@ -22,6 +29,10 @@ var assert = {
             throw mess;
         }
     },
+    /*
+     * Is meant to be called with arbitrary number of parameters which need to be
+     * checked for undefined.
+     */ 
     areDef: function(){
         var a;
         //console.log("arlen: " + arguments.length);
@@ -38,6 +49,34 @@ var assert = {
         }
         if(!utility.isDef(deed.target)){
             throw "target undefined";
+        }
+    },
+    isCompletelyDefined: function(obj, historyString, recursionLevel){
+        //TOIMIIKO?
+        if(!utility.isDef(obj)){
+            throw "Error: " + historyString + "(possibly), " + " is undefined";
+        }
+        var propNames = Object.keys(obj);
+        if(!utility.isDef(recursionLevel)){
+            recursionLevel = 0;
+        }else if(recursionLevel > 100){
+            throw "Error: something is wrong.";
+        }
+        //TOIMIIKO TÄMÄ KAIKISSA TAPAUKSISSA? TUSKIN.
+        if(!(typeof obj === 'object')){
+            //console.log("not an object");
+            return;
+        }
+        var pName;
+        var pVal;
+        for(var i = 0; i < propNames.length; i++){
+            pName = propNames[i];
+            pVal = obj[pName];
+            //console.log("pName: " + pName + ", value: " + pVal);
+            if(!utility.isDef(pVal)){
+                throw "Error: in " + historyString + ", " + pName + " is undefined";
+            }
+            assert.isCompletelyDefined(pVal, historyString + ".pName", recursionLevel + 1);
         }
     }
 };
