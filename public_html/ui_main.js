@@ -10,6 +10,7 @@ var ui = new function(){
     var selectedInfoArea;
     var selectedTargetInfo;
     var selectedActionInfo;
+    var messageLogArea;
     //The above are jQuery objects
     var actionExecutionButton;
     
@@ -17,11 +18,11 @@ var ui = new function(){
     var _actions;
     
     //jQuery
-    var selectedTargetImage;//TARVITAANKO?
-    var selectedActionImage;//TARVITAANKO?
-    
-    var selectedActionName;
-    var selectedTargetName;
+//    var selectedTargetImage;//TARVITAANKO?
+//    var selectedActionImage;//TARVITAANKO?
+//    
+//    var selectedActionName;
+//    var selectedTargetName;
     
     this.initializeView = function(actions, targets){
         actionSelection = $(actionSelectionId);
@@ -32,6 +33,7 @@ var ui = new function(){
         selectedTargetInfo = $('#selectedTargetInfo');
         selectedActionInfo = $('#selectedActionInfo');
         actionExecutionButton = $('#actionExecutionButton');
+        messageLogArea = $('#messageLogArea');
         actionExecutionButton.click(onActionExecutionButton);
         
         _objects = targets;
@@ -40,7 +42,7 @@ var ui = new function(){
         document.addEventListener('taskCreated', function(e){
             //console.log("taskCreated listened");
             var ti = e.detail.instructionText;
-            //console.log("ti: " + ti);
+            console.log("ti: " + ti);
             var gibberishedInst = languageManager.transformText(ti);
             ui.changeInstructions(gibberishedInst);//TOIMIIKO?
         });
@@ -56,20 +58,26 @@ var ui = new function(){
             assert.isDef(d);
             assert.isDef(d.action);
             assert.isDef(d.target);
-            alert("You can't " + d.action.name + " " + d.target.name + "!");
+            //alert("You can't " + d.action.name + " " + d.target.name + "!");
+            appendToMessageLog("You can't " + d.action.name + " " + d.target.name + "!");
         });
         document.addEventListener('taskCompleted', function(e){
             var d = e.detail;
-            alert("Task '" + d.action.name + " " + d.target.name + "' completed");
+            //alert("Task '" + d.action.name + " " + d.target.name + "' completed");
+            appendToMessageLog("Task '" + d.action.name + " " + d.target.name + "' completed");
         });
         document.addEventListener('deedDoneButNotTaskCompleted', function(e){
             var d = e.detail;
-            alert("You did: '" + d.action.name + " " + d.target.name + "', but " +
+            //alert("You did: '" + d.action.name + " " + d.target.name + "', but " +
+            //        "that wasn't your task.");
+            appendToMessageLog("You did: '" + d.action.name + " " + d.target.name + "', but " +
                     "that wasn't your task.");
         });
         
         addImages(actionSelection, actions, "action");
         addImages(targetSelection, targets, "object");
+        
+        messageLogArea.empty();
     };
     
     this.changeInstructions = function(instructions){
@@ -183,6 +191,20 @@ var ui = new function(){
             return tempWt.name === wtName;
         }
     };
+    
+    var appendToMessageLog = function(newMessage){
+        messageLogArea.append('<p>' + newMessage + '</p>');
+    };
+//    var displayAlertMessage = function(message) {
+//        var timeOut = 5;
+//        var messageBox = $('#messageBox');
+//        messageBox.text(message).fadeIn();
+//        messageBox.css("display", "block");
+//        setTimeout(function(){
+//            messageBox.fadeOut();
+//            messageBox.css("display", "none");
+//        }, timeOut * 1000);
+//    };
     
 //    var murderChildren = function(el){
 //        while(el.childNodes.length > 0){

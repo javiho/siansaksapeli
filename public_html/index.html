@@ -1,9 +1,4 @@
 <!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
 <html>
     <head>
         <title>TODO supply a title</title>
@@ -17,15 +12,23 @@ and open the template in the editor.
         <script src="jquery-3.1.1.js"></script>
         <script src="ui_main.js"></script>
         <script src="initialization.js"></script>
+        <style>
+            .area{
+                border: 2px solid;
+                border-radius: 4px;
+                margin: 2px;
+            }
+        </style>
     </head>
     <body>
         <div>
-            <p>The game title</p>
-            <div id="instructionArea">(Instruction area)</div>
-            <div id="timerArea">(Timer area)</div>
-            <div id="actionSelection">(Action selection)</div>
-            <div id="targetSelection">(Target selection)</div>
-            <div id="selectedInfoArea">
+            <h1>The game title</h1>
+            <div id="instructionArea" class="area">(Instruction area)</div>
+            <div id="timerArea" class="area">(Timer area)</div>
+            <div id="messageLogArea" class="area">(Message log area)</div>
+            <div id="actionSelection" class="area">(Action selection)</div>
+            <div id="targetSelection" class="area">(Target selection)</div>
+            <div id="selectedInfoArea" class="area">
                 <p>Selected action: <span id="selectedActionInfo"></span></p>
                 <p>Selected target: <span id="selectedTargetInfo"></span></p>
             </div>

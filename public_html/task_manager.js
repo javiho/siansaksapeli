@@ -2,8 +2,7 @@
 
 /*
  * BUGIT:
- * Aika kuluu nopeasti.
- * Kielensekoitussääntöjä ei sovelleta samalla tavalla tehtävien kuvauksiin.
+ * Ajan saa pysäytettyä, kun käytetään alerttia. (Ratkaisu: ei käytetä alerttia.)
  */
 
 var taskManager = new function(){
@@ -18,7 +17,7 @@ var taskManager = new function(){
         currentTask = generateNewTask();
         displayTask(currentTask);
         //console.log("intervalli asetetaan");
-        oncePerS = window.setInterval(secondPassed, 1000);//PITÄISI OLLA SETTIMEOUT
+        oncePerS = window.setInterval(secondPassed, 1000);
         document.addEventListener('newDeedDone', function(e){
             var d = e.detail;
             if(areDeedsEqual(currentTask, d)){
@@ -42,7 +41,7 @@ var taskManager = new function(){
         var spEvent = new CustomEvent('secondPassed', {'detail': secondsLeft});
         document.dispatchEvent(spEvent);
         if(secondsLeft <= 0){
-            window.clearInterval(oncePerS);//PITÄISI OLLA SETTIMEOUT
+            window.clearInterval(oncePerS);
             taskTimeUp();
         }
     };
@@ -69,6 +68,8 @@ var taskManager = new function(){
         currentTask = newTask;
         assert.isDef(currentTask);
         displayTask(currentTask);
+        window.clearInterval(oncePerS);
+        secondsLeft = defaultTaskTime;
         oncePerS = window.setInterval(secondPassed, defaultTaskTime);//PITÄISI OLLA SETTIMEOUT
     };
     
