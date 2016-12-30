@@ -221,16 +221,6 @@ var ui = new function(){
             }, 1000);
         });
     };
-//    var displayAlertMessage = function(message) {
-//        var timeOut = 5;
-//        var messageBox = $('#messageBox');
-//        messageBox.text(message).fadeIn();
-//        messageBox.css("display", "block");
-//        setTimeout(function(){
-//            messageBox.fadeOut();
-//            messageBox.css("display", "none");
-//        }, timeOut * 1000);
-//    };
     
 //    var murderChildren = function(el){
 //        while(el.childNodes.length > 0){
