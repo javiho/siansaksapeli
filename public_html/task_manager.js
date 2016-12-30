@@ -1,8 +1,11 @@
 "use strict";
 
+//D:\projekteja\NetBeans-projekteja\SiansaksaPeli
+
 /*
  * BUGIT:
- * Ajan saa pysäytettyä, kun käytetään alerttia. (Ratkaisu: ei käytetä alerttia.)
+ * Jos klikkaa monta kertaa peräkkäin uusia viestejä lokiin, väri vaihtuu
+ * suurella viiveellä.
  */
 
 var taskManager = new function(){

@@ -21,8 +21,15 @@ var ui = new function(){
 //    var selectedTargetImage;//TARVITAANKO?
 //    var selectedActionImage;//TARVITAANKO?
 //    
-//    var selectedActionName;
-//    var selectedTargetName;
+    var selectedActionName;
+    var selectedTargetName;
+    
+    var messageColors = {
+        green:"green",
+        yellow:"yellow",
+        red:"red",
+        defaultColor:"white"
+    };
     
     this.initializeView = function(actions, targets){
         actionSelection = $(actionSelectionId);
@@ -59,19 +66,19 @@ var ui = new function(){
             assert.isDef(d.action);
             assert.isDef(d.target);
             //alert("You can't " + d.action.name + " " + d.target.name + "!");
-            appendToMessageLog("You can't " + d.action.name + " " + d.target.name + "!");
+            appendToMessageLog("You can't " + d.action.name + " " + d.target.name + "!", messageColors.yellow);
         });
         document.addEventListener('taskCompleted', function(e){
             var d = e.detail;
             //alert("Task '" + d.action.name + " " + d.target.name + "' completed");
-            appendToMessageLog("Task '" + d.action.name + " " + d.target.name + "' completed");
+            appendToMessageLog("Task '" + d.action.name + " " + d.target.name + "' completed", messageColors.green);
         });
         document.addEventListener('deedDoneButNotTaskCompleted', function(e){
             var d = e.detail;
             //alert("You did: '" + d.action.name + " " + d.target.name + "', but " +
             //        "that wasn't your task.");
             appendToMessageLog("You did: '" + d.action.name + " " + d.target.name + "', but " +
-                    "that wasn't your task.");
+                    "that wasn't your task.", messageColors.yellow);
         });
         
         addImages(actionSelection, actions, "action");
@@ -192,8 +199,27 @@ var ui = new function(){
         }
     };
     
-    var appendToMessageLog = function(newMessage){
+    var appendToMessageLog = function(newMessage, color){
         messageLogArea.append('<p>' + newMessage + '</p>');
+        //console.log(messageLogArea.prop('scrollHeight'));
+        messageLogArea.scrollTop(messageLogArea.prop('scrollHeight'));
+        //animateTextFlash(messageLogArea, "yellow", 4000);
+        animateMessageFlash(messageLogArea, color);
+        
+    };
+    
+    var animateMessageFlash = function(jQueryObject, color){
+        //EI OLE HYVÄ, ETTÄ ANIMAATION KESTO MÄÄRITELLÄÄN ERIKSEEN SEKÄ
+        //JAVASCRIPTISSA ETTÄ CSS:SSÄ.
+        var originalBgColor = messageColors.defaultColor;//jQueryObject.css('background-color');
+        jQueryObject.animate({
+            backgroundColor: color
+        }, 0, void 0, function(){
+            //console.log("called!");
+            jQueryObject.animate({
+                backgroundColor: originalBgColor
+            }, 1000);
+        });
     };
 //    var displayAlertMessage = function(message) {
 //        var timeOut = 5;
@@ -211,4 +237,17 @@ var ui = new function(){
 //            el.removeChild(el.childNodes[0]);
 //        }
 //    };  
+/*
+ * $("<style>")
+    .prop("type", "text/css")
+    .html("\
+    #my-window {\
+        position: fixed;\
+        z-index: 102;\
+        display:none;\
+        top:50%;\
+        left:50%;\
+    }")
+    .appendTo("head");
+ */
 };

@@ -1,7 +1,5 @@
 "use strict";
 
-//D:\projekteja\NetBeans-projekteja\SiansaksaPeli
-
 //Action is the type of action which is allowed.
 //World object is a type of object.
 //Deed is a structure with action and specific type of world object.
