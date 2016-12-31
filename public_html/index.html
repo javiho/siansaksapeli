@@ -25,7 +25,28 @@
                 overflow-y: scroll;
                 height: 10em;
                 background-color: #FFFFFF;
+                /*margin-left: 30em;*/
+                max-width: 60em;
             }
+            #taskAndTimeArea{
+                width: 30em;
+                /*float: left;*/
+            }
+            #inputArea{
+                /*float: left;
+                clear: left;*/
+                max-width: 60em;
+                margin: 2px;
+            }
+            #instructionArea, #timerArea{
+                width: 60em;
+            }
+            #mttArea{
+                margin: 2px;
+            }
+            /*#timerArea{
+                width: 60em;
+            }*/
             /*.messageLogFlash{
                 animation-name: messageLogFlash;
                 animation-duration: 4s;
@@ -51,22 +72,22 @@
     <body>
         <div>
             <h1>The game title</h1>
-            <div id="mttArea" class="container">
-                <div class="row">
-                    <div class="col-xs-3">
-                        <div id="instructionArea" class="area">(Instruction area)</div>
-                        <div id="timerArea" class="area">(Timer area)</div>
-                    </div>
-                    <div id="messageLogArea" class="area col-xs-3">(Message log area)</div>
+            <div id="mttArea">
+                <div id="taskAndTimeArea">
+                    <div id="instructionArea" class="area">(Instruction area)</div>
+                    <div id="timerArea" class="area">(Timer area)</div>
                 </div>
+                <div id="messageLogArea" class="area">(Message log area)</div>
             </div>
-            <div id="actionSelection" class="area">(Action selection)</div>
-            <div id="targetSelection" class="area">(Target selection)</div>
-            <div id="selectedInfoArea" class="area">
-                <p>Selected action: <span id="selectedActionInfo"></span></p>
-                <p>Selected target: <span id="selectedTargetInfo"></span></p>
+            <div id="inputArea">
+                <div id="actionSelection" class="area">(Action selection)</div>
+                <div id="targetSelection" class="area">(Target selection)</div>
+                <div id="selectedInfoArea" class="area">
+                    <p>Selected action: <span id="selectedActionInfo"></span></p>
+                    <p>Selected target: <span id="selectedTargetInfo"></span></p>
+                </div>
+                <button id="actionExecutionButton">Execute</button>
             </div>
-            <button id="actionExecutionButton">Execute</button>
         </div>
     </body>
 </html>
