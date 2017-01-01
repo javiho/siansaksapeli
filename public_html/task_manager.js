@@ -10,7 +10,7 @@
 
 var taskManager = new function(){
     
-    var defaultTaskTime = 1000;//seconds
+    var defaultTaskTime = 10;//seconds
     var secondsLeft = defaultTaskTime;
     var currentTask;
     
@@ -50,16 +50,20 @@ var taskManager = new function(){
     };
     
     var taskTimeUp = function(){
-        alert("The time is up!");
-        if(isTaskDone()){
+        //alert("The time is up!");
+        document.dispatchEvent(new CustomEvent('timeUp', {detail: currentTask}));
+        if(isTaskDone(currentTask)){
             reactToCompletedTask();
         }else{
-            alert("Game over!");
+            world.makePreviousDeedsObsolete();
+            document.dispatchEvent(new CustomEvent('gameOver'));
+            //alert("Game over!");
         }
     };
     
     //TARVITAANKO TÄTÄ?
-    var isTaskDone = function(task){  
+    var isTaskDone = function(task){
+        assert.isDef(task);
         return world.wasDone(task);
     };
     
@@ -67,13 +71,14 @@ var taskManager = new function(){
         //HUOM! Pelin alun displayTask on eri kuin että task olisi tehty valmiiksi.
         document.dispatchEvent(new CustomEvent('taskCompleted', {detail:currentTask}));
         languageManager.addNewRule();
+        world.makePreviousDeedsObsolete();
         var newTask = generateNewTask();
         currentTask = newTask;
         assert.isDef(currentTask);
         displayTask(currentTask);
         window.clearInterval(oncePerS);
         secondsLeft = defaultTaskTime;
-        oncePerS = window.setInterval(secondPassed, defaultTaskTime);//PITÄISI OLLA SETTIMEOUT
+        oncePerS = window.setInterval(secondPassed, 1000);//PITÄISI OLLA SETTIMEOUT
     };
     
     var generateNewTask = function(){
@@ -101,6 +106,8 @@ var taskManager = new function(){
         document.dispatchEvent(tgEvent);
     };
     
+    //EPÄSELVÄ FUNKTION NIMI, KOSKA VOISI KUVITELLA OLEVAN LANGUAGE MANAGERILLA
+    //JOTAIN TEKEMISTÄ TAI ETTÄ OLISI PELKKÄ TASK-OBJEKTIN SISÄLTÖ TEKSTINÄ.
     var taskToInstruction = function(task){
         assert.isDef(task.action, "Is undefined");
         assert.isDef(task.target, "Is undefined");

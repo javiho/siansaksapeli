@@ -41,8 +41,11 @@ var world = new function(){
 //    };
     //UUSI VERSIO, KESKEN (??)
     this.wasDone = function(task){
+        assert.isDef(task);
         return world.deedHistory.some(function(histTask){
-            return histTask.name === task.name && histTask.targetWos.some(function(aTargetWo){
+            return histTask.name === task.name &&
+            histTask.recent === true &&
+            histTask.targetWos.some(function(aTargetWo){
                 return aTargetWo.name === task.name;
             });
         });
@@ -85,6 +88,11 @@ var world = new function(){
             executeDeed(deed);
         }
     };
+    this.makePreviousDeedsObsolete = function(){
+        world.deedHistory.forEach(function(d){
+            d.recent = false;
+        });
+    };
     var addWorldObjects = function(){
         var woInfo;
         for(var i = 0; i < wosInfo.length; i++){
@@ -118,7 +126,7 @@ var world = new function(){
         //console.log(world.actions);
     };
     var executeDeed = function(deed){
-        world.deedHistory.push({action:deed.action, target:deed.targetWo});
+        world.deedHistory.push({action:deed.action, target:deed.targetWo, recent:true});
         //alert("Action " + action.name + " with target " + targetWo.name + "has been acted!");
         document.dispatchEvent(new CustomEvent('newDeedDone', {detail: deed}));
     };

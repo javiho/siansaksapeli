@@ -80,6 +80,15 @@ var ui = new function(){
             appendToMessageLog("You did: '" + d.action.name + " " + d.target.name + "', but " +
                     "that wasn't your task.", messageColors.yellow);
         });
+        document.addEventListener('gameOver', function(){
+            //console.log('game over listened');
+            appendToMessageLog("Game over!", messageColors.red);
+        });
+        document.addEventListener('timeUp', function(e){
+            var d = e.detail;
+            appendToMessageLog("The time for the task " + d.action.name + " " +
+                    d.target.name + " is up!", messageColors.red);
+        });
         
         addImages(actionSelection, actions, "action");
         addImages(targetSelection, targets, "object");
@@ -220,6 +229,12 @@ var ui = new function(){
                 backgroundColor: originalBgColor
             }, 1000);
         });
+    };
+    
+    var taskToPresentableText = function(task){
+        var asText = task.action.name + " " + task.target.name;
+        var gibberished = languageManager.transformText(asText);
+        return gibberished;
     };
     
 //    var murderChildren = function(el){
