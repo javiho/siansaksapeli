@@ -66,18 +66,21 @@ var ui = new function(){
             assert.isDef(d.action);
             assert.isDef(d.target);
             //alert("You can't " + d.action.name + " " + d.target.name + "!");
-            appendToMessageLog("You can't " + d.action.name + " " + d.target.name + "!", messageColors.yellow);
+            appendProcessedToML("You can't ", d, "!", messageColors.yellow);
         });
         document.addEventListener('taskCompleted', function(e){
             var d = e.detail;
             //alert("Task '" + d.action.name + " " + d.target.name + "' completed");
-            appendToMessageLog("Task '" + d.action.name + " " + d.target.name + "' completed", messageColors.green);
+            appendProcessedToML("Task '", d, "' completed", messageColors.green);
+            //A new text transform rule is added, so world thing names in selected
+            //info area must be updated according to the new rule. (EI PIDÄ PAIKKAANSA)
+            //updateSelectedInfoArea();
         });
         document.addEventListener('deedDoneButNotTaskCompleted', function(e){
             var d = e.detail;
             //alert("You did: '" + d.action.name + " " + d.target.name + "', but " +
             //        "that wasn't your task.");
-            appendToMessageLog("You did: '" + d.action.name + " " + d.target.name + "', but " +
+            appendProcessedToML("You did: '", d, "', but " +
                     "that wasn't your task.", messageColors.yellow);
         });
         document.addEventListener('gameOver', function(){
@@ -86,8 +89,7 @@ var ui = new function(){
         });
         document.addEventListener('timeUp', function(e){
             var d = e.detail;
-            appendToMessageLog("The time for the task " + d.action.name + " " +
-                    d.target.name + " is up!", messageColors.red);
+            appendToMessageLog("The time for the task ", d, " is up!", messageColors.red);
         });
         
         addImages(actionSelection, actions, "action");
@@ -154,6 +156,18 @@ var ui = new function(){
         });
     };
     
+    /*
+     * Creates and processes text and appends it to message log.
+     */
+    var appendProcessedToML = function(beforeText, task, afterText, messageColor){
+        assert.areDef(beforeText, task, afterText, messageColor);
+        var t = beforeText + taskToPresentableText(task);
+        if(utility.isDef(afterText)){
+            t = t + afterText;
+        }
+        appendToMessageLog(t, messageColor);
+    };
+    
     var onActionExecutionButton = function(){
         //alert("action execution");
         //console.log("attempting to exectue with action " + selectedActionName +
@@ -181,12 +195,15 @@ var ui = new function(){
     
     var updateSelectedInfoArea = function(){
         selectedActionInfo.empty();
+        //selectedActionInfo.text(languageManager.transformText(selectedActionName));
         selectedActionInfo.text(selectedActionName);
         selectedTargetInfo.empty();
+        //selectedTargetInfo.text(languageManager.transformText(selectedTargetName));
         selectedTargetInfo.text(selectedTargetName);
     };
     
     /*
+     * Return value: is desc a descentant of parent.
      * Pre-condition: desc and parent are jQuery objects.
      * desc is it's own descendant.
      */
@@ -194,6 +211,9 @@ var ui = new function(){
         return desc.closest(parent).length > 0;
     };
     
+    /*
+     * Return value: a world thing object wt, where wt.name == wtName.
+     */
     var getWtByName = function(wtName){
         assert.isDef(wtName);
         assert.isDef(_objects);
