@@ -3,6 +3,22 @@
 var utility = {
     isDef: function(o){
         return !(typeof o === 'undefined');
+    },
+    //min is inclusive and max is exclusive.
+    getRandomInt: function(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min)) + min;
+    },
+    // Returns a random integer between min (included) and max (included)
+    getRandomIntInclusive: function(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
+    //MITENKÄS MUUT KUIN KIRJAIMET? OLETETAAN, ETTÄ PALAUTETAAN TRUE NIIDEN KOHDALLA.
+    isLowerCase: function(character){
+        return character === character.toLowerCase();
     }
 };
 
