@@ -29,7 +29,7 @@
                 max-width: 60em;
             }
             #taskAndTimeArea{
-                width: 30em;
+                max-width: 60em;
                 /*float: left;*/
             }
             #inputArea{
@@ -38,11 +38,21 @@
                 max-width: 60em;
                 margin: 2px;
             }
-            #instructionArea, #timerArea{
-                width: 60em;
-            }
+            /*#instructionArea, #timerArea{
+                max-width: 60em;
+            }*/
             #mttArea{
                 margin: 2px;
+            }
+            #languageRulesArea{
+                height: 10em;
+                width: 20em;
+                overflow-y: scroll;
+                position: absolute;
+                margin-left: 61em;
+                margin-top: 5em;
+                padding: 5px;
+                top: 0px;
             }
             /*#timerArea{
                 width: 60em;
@@ -78,6 +88,7 @@
                     <div id="timerArea" class="area">(Timer area)</div>
                 </div>
                 <div id="messageLogArea" class="area">(Message log area)</div>
+                <div id="languageRulesArea" class="area">(Language rules area)</div>
             </div>
             <div id="inputArea">
                 <div id="actionSelection" class="area">(Action selection)</div>

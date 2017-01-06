@@ -41,6 +41,7 @@ var ui = new function(){
         selectedActionInfo = $('#selectedActionInfo');
         actionExecutionButton = $('#actionExecutionButton');
         messageLogArea = $('#messageLogArea');
+        languageRulesArea = $('#languageRulesArea');
         actionExecutionButton.click(onActionExecutionButton);
         
         _objects = targets;
@@ -90,6 +91,9 @@ var ui = new function(){
         document.addEventListener('timeUp', function(e){
             var d = e.detail;
             appendToMessageLog("The time for the task ", d, " is up!", messageColors.red);
+        });
+        document.addEventListener('languageRuleAdded', function(){
+            fillLanguageRulesArea();
         });
         
         addImages(actionSelection, actions, "action");
@@ -257,6 +261,14 @@ var ui = new function(){
         return gibberished;
     };
     
+    var fillLanguageRulesArea = function(){
+        languageRulesArea.empty();
+        var ruleDescs = languageManager.ruleDescriptions;
+        ruleDescs.forEach(function(r){
+            languageRulesArea.append("<p>Rule: " + r + "</p>");
+        });
+        languageRulesArea.scrollTop(languageRulesArea.prop('scrollHeight'));
+    };
 //    var murderChildren = function(el){
 //        while(el.childNodes.length > 0){
 //            el.removeChild(el.childNodes[0]);

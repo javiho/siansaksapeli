@@ -6,6 +6,7 @@
  * BUGIT:
  * Jos klikkaa monta kertaa peräkkäin uusia viestejä lokiin, väri vaihtuu
  * suurella viiveellä.
+ * The time for the task (is up puuttuu).
  */
 
 var taskManager = new function(){
