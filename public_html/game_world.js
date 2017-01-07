@@ -11,6 +11,7 @@
 //VAI OBJEKTEJA ITSESSÄÄN?
 //PARAS OLISI, ETTÄ OLISIVAT OBJEKTEJA, KOSKA LUONNOLLISEMPAA
 //TOISAALTA VOI VAIN OLLA FUNKTIO, JOLLA VOI HAKEA NIMEN PERUSTEELLA OBJEKTIN.
+//IMAGE-JUTUT PITÄISI POISTAA. VAI TULEEKO VIELÄ MYÖHEMIN KUVIA?
 
 var world = new function(){
     this.worldObjects = [];
@@ -39,7 +40,6 @@ var world = new function(){
 //                    action.targetWo.name;
 //        });
 //    };
-    //UUSI VERSIO, KESKEN (??)
     this.wasDone = function(task){
         assert.isDef(task);
         return world.deedHistory.some(function(histTask){

@@ -1,7 +1,7 @@
 //Assumes that world things are identified by their names.
 var ui = new function(){
-    var actionSelectionId = "#actionSelection";
-    var targetSelectionId = "#targetSelection";
+    var actionSelectionId = "actionSelection";
+    var targetSelectionId = "targetSelection";
     
     var actionSelection;
     var targetSelection;
@@ -31,9 +31,19 @@ var ui = new function(){
         defaultColor:"white"
     };
     
+    var wtTypes = {
+        action:"action",
+        target:"target"
+    };
+    //KAHTEEN KERTAAN MÄÄRITELTY action JA target.
+    /*var wtSelectionAres = {
+        action:actionSelection,
+        target:targetSelection
+    };*/
+    
     this.initializeView = function(actions, targets){
-        actionSelection = $(actionSelectionId);
-        targetSelection = $(targetSelectionId);
+        actionSelection = $('#' + actionSelectionId);
+        targetSelection = $('#' + targetSelectionId);
         instructionArea = $('#instructionArea');
         timerArea = $('#timerArea');
         selectedInfoArea = $('#selectedInfoArea');
@@ -96,8 +106,11 @@ var ui = new function(){
             fillLanguageRulesArea();
         });
         
-        addImages(actionSelection, actions, "action");
-        addImages(targetSelection, targets, "object");
+        //EHKÄ OTETAAN MYÖHEMMIN KÄYTTÖÖN:
+        //addImages(actionSelection, actions, "action");
+        //addImages(targetSelection, targets, "object");
+        addWtBlocks(actionSelection, actions);
+        addWtBlocks(targetSelection, targets);
         
         messageLogArea.empty();
     };
@@ -121,7 +134,7 @@ var ui = new function(){
     /*
      * Pre-condition: objects are world things.
      */
-    var addImages = function(element, objects){
+    /*var addImages = function(element, objects){
         var img;
         var o;
         //console.log(objects);
@@ -158,6 +171,60 @@ var ui = new function(){
             //console.log($(this).attr('alt'));
             updateSelectedInfoArea();
         });
+    };*/
+    
+    /*
+     * element is actionSelection or targetSelection.
+     * EI OLE HYVÄ, ETTÄ KOLMESSA FUNKTIOSSA PITÄÄ TARKISTAA, ONKO KYSE AKTIOSTA
+     * VAI OBJEKTISTA.
+     */
+    var addWtBlocks = function(element, wts){
+        var wtType;
+        console.log(element.prop("id"));
+        if(element.prop("id") === actionSelectionId){
+            wtType = wtTypes.action;
+        }else if(element.prop("id") === targetSelectionId){
+            wtType = wtTypes.target;
+        }else{
+            throw "Erroneous wt type.";
+        }
+        wts.forEach(function(wt){
+            var wtBlock = createWtBlock(wt.name, wtType);
+            element.append(wtBlock);
+        });
+    };
+    
+    /*
+     * Pre-condition: wtName is unique.
+     */
+    var createWtBlock = function(wtName, wtType){
+        assert.areDef(wtName, wtType);
+        
+        var newSelInfo = {};
+        newSelInfo[wtType] = wtName;
+        /*var newSelInfo = {actionName:null, targetName:null};
+        if(wtType === wtTypes.action){
+            newSelInfo.actionName = wtName;
+        }
+        else if(wtType === wtTypes.target){
+            newSelInfo.targetName = wtName;
+        }
+        else throw "Erroneous wt type.";*/
+        
+        var id = "wtBlock" + wtName;
+        var div = $('<div/>', {
+            id: id,
+            on: {
+                click: function(){
+                    console.log(id + " clicked!");
+                    updateSelectedInfoArea(newSelInfo);
+                }
+            }
+        });
+        div.append(wtName);
+        div.addClass("wtBlock");
+        div.addClass(wtType + "Block");
+        return div;
     };
     
     /*
@@ -197,13 +264,30 @@ var ui = new function(){
         //world....
     };
     
-    var updateSelectedInfoArea = function(){
+    /*
+     * Parameter: {wtType.action: new action name, wtType.target: new target name}
+     * Parameter is optional.
+     * Also updates class member variables in addition to updating the ui area.
+     * 
+     * REFAKTOROINTIA? KAKTSOISTEHTÄVÄ JA DUPLIKOINTIA
+     */
+    var updateSelectedInfoArea = function(newSelectedNames){
+        var newSelAcName = newSelectedNames.action;
+        var newSelTargName = newSelectedNames.target;
         selectedActionInfo.empty();
-        //selectedActionInfo.text(languageManager.transformText(selectedActionName));
-        selectedActionInfo.text(selectedActionName);
         selectedTargetInfo.empty();
-        //selectedTargetInfo.text(languageManager.transformText(selectedTargetName));
-        selectedTargetInfo.text(selectedTargetName);
+        if(utility.isDef(newSelAcName)){
+            selectedActionInfo.text(newSelAcName)
+            selectedActionName = newSelAcName;
+        }else{
+            selectedActionInfo.text(selectedActionName);
+        }
+        if(utility.isDef(newSelTargName)){
+            selectedTargetInfo.text(newSelTargName);
+            selectedTargetName = newSelTargName;
+        }else{
+            selectedTargetInfo.text(selectedTargetName);
+        }
     };
     
     /*

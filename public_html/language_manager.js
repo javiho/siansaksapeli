@@ -43,20 +43,6 @@ var languageManager = new function(){
         rules.push(generateNewRule());
         document.dispatchEvent(new CustomEvent('languageRuleAdded'));
     };
-    /*var generateNewRule = function(){
-        var possible = "abcdefghijklmnopqrstuvwxyz";
-        var replacedIndex = Math.floor(Math.random() * possible.length);
-        var replacerIndex = Math.floor(Math.random() * possible.length);
-        var replaced = possible.charAt(replacedIndex);
-        var replacer = possible.charAt(replacerIndex);
-        var replacedRegExp = new RegExp(replaced, "g");
-        var rule = function(text){
-            //console.log("replaced: " + replacedRegExp + ", replacer: " + replacer);
-            var newText = text.replace(replacedRegExp, replacer);
-            return newText;
-        };
-        return rule;
-    };*/
     
     var generateNewRule = function(){
         var replacerString = createReplString();
