@@ -120,7 +120,6 @@ var ui = new function(){
         instructionArea.append("Your task: " + instructions);
     };
     
-    //PERFORMANTIMMAKSI VOISI MUUTTAA
     this.changeTimerTime = function(newTimeSeconds){
         assert.isDef(newTimeSeconds)
         //murderChildren(instructionArea);
@@ -175,8 +174,6 @@ var ui = new function(){
     
     /*
      * element is actionSelection or targetSelection.
-     * EI OLE HYVÄ, ETTÄ KOLMESSA FUNKTIOSSA PITÄÄ TARKISTAA, ONKO KYSE AKTIOSTA
-     * VAI OBJEKTISTA.
      */
     var addWtBlocks = function(element, wts){
         var wtType;
@@ -199,24 +196,14 @@ var ui = new function(){
      */
     var createWtBlock = function(wtName, wtType){
         assert.areDef(wtName, wtType);
-        
         var newSelInfo = {};
         newSelInfo[wtType] = wtName;
-        /*var newSelInfo = {actionName:null, targetName:null};
-        if(wtType === wtTypes.action){
-            newSelInfo.actionName = wtName;
-        }
-        else if(wtType === wtTypes.target){
-            newSelInfo.targetName = wtName;
-        }
-        else throw "Erroneous wt type.";*/
-        
         var id = "wtBlock" + wtName;
         var div = $('<div/>', {
             id: id,
             on: {
                 click: function(){
-                    console.log(id + " clicked!");
+                    //console.log(id + " clicked!");
                     updateSelectedInfoArea(newSelInfo);
                 }
             }

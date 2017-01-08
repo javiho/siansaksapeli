@@ -21,11 +21,54 @@ var world = new function(){
     var wosInfo = [
         {name:"apple", imageSource:"???"},
         {name:"cookie", imageSource:"???"},
-        {name:"tumor", imageSource:"???"}
+        {name:"tumor", imageSource:"???"},
+        {name:"people"},
+        {name:"history"},
+        {name:"art"},
+        {name:"the world"},
+        {name:"family"},
+        {name:"government"},
+        {name:"health"},
+        {name:"computer"},
+        {name:"meat"},
+        {name:"music"},
+        {name:"food"},
+        {name:"theory"},
+        {name:"the law"},
+        {name:"bird"},
+        {name:"literature"},
+        {name:"library"},
+        {name:"nature"},
+        {name:"oven"},
+        {name:"safety"},
+        {name:"language"},
+        {name:"video"},
+        {name:"exam"},
+        {name:"movie"},
+        {name:"shoes"}
     ];
+    var allWos = getAllWoNames();
     var actionsInfo = [
         {name:"eat", targetNames:["apple", "cookie"], imageSoucre:"???"},
-        {name:"request", targetNames:["tumor"], imageSoucre:"???"}
+        {name:"request", targetNames:["tumor"], imageSoucre:"???"},
+        {name:"accept", targetNames:allWos},
+        {name:"achieve", targetNames:["safety", "health"]},
+        {name:"break", targetNames:allWos},
+        {name:"burn", targetNames:allWos},
+        {name:"buy", targetNames:allWos},
+        {name:"clean", targetNames:allWos},
+        {name:"deny", targetNames:allWos},
+        {name:"draw", targetNames:allWos},
+        {name:"explain", targetNames:allWos},
+        {name:"fold", targetNames:allWos},
+        {name:"improve", targetNames:allWos},
+        {name:"kick", targetNames:allWos},
+        {name:"protect", targetNames:allWos},
+        {name:"lose", targetNames:allWos},
+        {name:"read about", targetNames:allWos},
+        {name:"take", targetNames:allWos},
+        {name:"wait for", targetNames:allWos},
+        {name:"test", targetNames:allWos}
     ];
     this.initialize = function(){
         setImageSources(actionsInfo, "action");
@@ -150,8 +193,21 @@ var world = new function(){
         assert.isDef(wo);
         return wo;
     };
+    
+    function getAllWoNames(){
+        var names = wosInfo.map(function(woInfo){
+            return woInfo.name;
+        });
+        assert.isCompletelyDefined(names);
+        return names;
+    }
+    
+    /*var fillActionsInfo = function(actionNames, targetArrays){
+        
+    }*/
 };
 
+//EI KÄYTÖSSÄ
 function setImageSources(worldThings, wtTypeString){
     var wt;
     for(var i = 0; i < worldThings.length; i++){
