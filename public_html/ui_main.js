@@ -23,6 +23,8 @@ var ui = new function(){
 //    
     var selectedActionName;
     var selectedTargetName;
+    //var objectCount;
+    //var actionCount;
     
     var messageColors = {
         green:"green",
@@ -109,8 +111,8 @@ var ui = new function(){
         //EHKÄ OTETAAN MYÖHEMMIN KÄYTTÖÖN:
         //addImages(actionSelection, actions, "action");
         //addImages(targetSelection, targets, "object");
-        addWtBlocks(actionSelection, actions);
-        addWtBlocks(targetSelection, targets);
+        addWtBlocks(actionSelection, actions, taskManager.actionCount);
+        addWtBlocks(targetSelection, targets, taskManager.objectCount);
         
         messageLogArea.empty();
     };
@@ -175,7 +177,8 @@ var ui = new function(){
     /*
      * element is actionSelection or targetSelection.
      */
-    var addWtBlocks = function(element, wts){
+    var addWtBlocks = function(element, wts, count){
+        console.assert(wts.length >= count, "Error: count " + count + ", wts length " + wts.length);
         var wtType;
         console.log(element.prop("id"));
         if(element.prop("id") === actionSelectionId){
@@ -185,10 +188,16 @@ var ui = new function(){
         }else{
             throw "Erroneous wt type.";
         }
-        wts.forEach(function(wt){
+        var wt;
+        for(var i = 0; i < count; i++){
+            wt = wts[i];
             var wtBlock = createWtBlock(wt.name, wtType);
             element.append(wtBlock);
-        });
+        }
+        /*wts.forEach(function(wt){
+            var wtBlock = createWtBlock(wt.name, wtType);
+            element.append(wtBlock);
+        });*/
     };
     
     /*

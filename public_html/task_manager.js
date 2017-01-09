@@ -14,10 +14,16 @@ var taskManager = new function(){
     var defaultTaskTime = 10;//seconds
     var secondsLeft = defaultTaskTime;
     var currentTask;
+    this.objectCount = 8;
+    this.actionCount = 8;
+    var availableObjects = [];
+    var availableActions = [];
     
     var oncePerS;//interval
     
     this.initialize = function(){
+        availableObjects = pickAvailableWts(world.worldObjects, taskManager.objectCount);
+        availableActions = pickAvailableWts(world.actions, taskManager.actionCount);
         currentTask = generateNewTask();
         displayTask(currentTask);
         //console.log("intervalli asetetaan");
@@ -88,8 +94,13 @@ var taskManager = new function(){
         //console.log("actions: " + JSON.stringify(actions));
         assert.isCompletelyDefined(actions);
         assert.arrHasContent(actions);
-        var newAction = randomFromArray(actions);
-        var newTarget = randomFromArray(newAction.targets);
+        var newAction = utility.randomFromArray(availableActions);
+        /*
+         * 
+         * poimitaan targeteista sellainen, joka on pöydällä. Mutta entä jos
+         * mikään sopiva targetti ei ole?
+         */
+        var newTarget = utility.randomFromArray(newAction.availableObjects);
         var newTask = createTask(newAction, newTarget);
         assert.areDef(newAction, newTarget, newTask);
         assert.areDef(newTask.action, newTask.target);
@@ -117,11 +128,6 @@ var taskManager = new function(){
         return inst;
     };
     
-    var randomFromArray = function(arr){
-        assert.arrHasContent(arr);
-        return arr[Math.floor(Math.random()*arr.length)];
-    };
-    
     //TARVITAANKO EXECUTOINTIA TASKISSA?
     var createTask = function(action, targetWo){
         assert.areDef(action, targetWo, targetWo.name);
@@ -134,5 +140,12 @@ var taskManager = new function(){
 //            }
         };
         return t;
+    };
+    
+    /*
+     * allPossible is array of all wts of one type.
+     */
+    var pickAvailableWts = function(allPossible, count){
+        return utility.pickWithoutReplacement(allPossible, count);
     };
 };

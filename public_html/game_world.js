@@ -49,7 +49,7 @@ var world = new function(){
     ];
     var allWos = getAllWoNames();
     var actionsInfo = [
-        {name:"eat", targetNames:["apple", "cookie"], imageSoucre:"???"},
+        {name:"eat", targetNames:["apple", "cookie", "food", "meat"], imageSoucre:"???"},
         {name:"request", targetNames:["tumor"], imageSoucre:"???"},
         {name:"accept", targetNames:allWos},
         {name:"achieve", targetNames:["safety", "health"]},

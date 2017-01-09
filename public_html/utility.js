@@ -19,6 +19,32 @@ var utility = {
     //MITENKÄS MUUT KUIN KIRJAIMET? OLETETAAN, ETTÄ PALAUTETAAN TRUE NIIDEN KOHDALLA.
     isLowerCase: function(character){
         return character === character.toLowerCase();
+    },
+    //PERFORMANSSI? JA MUUTENKIN EI OIKEIN OLE JÄRKEVÄ
+    pickWithoutReplacement: function(arr, sampleSize){
+        console.assert(arr.length >= sampleSize, "Error: sample size too large.");
+        var remainingIndices = [];
+        for(var i = 0; i < arr.length; i++){
+            remainingIndices.push(i);
+        }
+        var pickedIndices = [];
+        var pickedIndex;
+        for(var sampleNo = 0; sampleNo < sampleSize; sampleNo++){
+            pickedIndex = utility.getRandomIntInclusive(0, remainingIndices.length - 1);
+            pickedIndices.push(pickedIndex);
+            remainingIndices = utility.removeFromArray(remainingIndices, pickedIndex);
+        }
+        var finalSamples = pickedIndices.map(function(pi){
+            return arr[pi];
+        });
+        return finalSamples;
+    },
+    randomFromArray: function(arr){
+        assert.arrHasContent(arr);
+        return arr[Math.floor(Math.random()*arr.length)];
+    },
+    removeFromArray: function(arr, index){
+        return arr.splice(index, 1);
     }
 };
 
@@ -96,3 +122,7 @@ var assert = {
         }
     }
 };
+
+//TESTAUS
+//var rand = utility.pickWithoutReplacement(["a", "b", "c", "d", "e", "f", "g"], 1);
+//console.log(rand);
