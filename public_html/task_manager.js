@@ -7,6 +7,8 @@
  * Jos klikkaa monta kertaa peräkkäin uusia viestejä lokiin, väri vaihtuu
  * suurella viiveellä.
  * The time for the task (is up puuttuu).
+ * Jos jompi kumpi wtCount on suurempi kuin wt:iden määrä, ei toimi. Pitäisi
+ * käsitellä virhe hienostuneemmin.
  */
 
 var taskManager = new function(){
@@ -14,18 +16,26 @@ var taskManager = new function(){
     var defaultTaskTime = 10;//seconds
     var secondsLeft = defaultTaskTime;
     var currentTask;
-    this.objectCount = 8;
-    this.actionCount = 8;
     var availableObjects = [];
     var availableActions = [];
+    this.objectCount = 1;
+    this.actionCount = 100;
     
     var oncePerS;//interval
     
     this.initialize = function(){
+        console.assert(taskManager.objectCount.length > 0 &&
+                taskManager.objectCount.length <= world.worldObjects.length &&
+                taskManager.actionCount.length <= world.actions.length &&
+                taskManager.actionCount.length > 0);
         availableObjects = pickAvailableWts(world.worldObjects, taskManager.objectCount);
         availableActions = pickAvailableWts(world.actions, taskManager.actionCount);
+        assert.arrHasContent(availableObjects);
+        assert.arrHasContent(availableActions);
+        //console.log(availableObjects);
         currentTask = generateNewTask();
-        displayTask(currentTask);
+        //No dispatching event, because no one is listening yet.
+        //dispatchTaskCreated(currentTask);
         //console.log("intervalli asetetaan");
         oncePerS = window.setInterval(secondPassed, 1000);
         document.addEventListener('newDeedDone', function(e){
@@ -42,6 +52,18 @@ var taskManager = new function(){
             }
         });
         //console.log("intervalli asetettu");
+    };
+    
+    this.getAvailableObjects = function(){
+        return availableObjects;
+    };
+    
+    this.getAvailableActions = function(){
+        return availableActions;
+    };
+    
+    this.getCurrentTask = function(){
+        return currentTask;
     };
     
     var secondPassed = function(){
@@ -81,8 +103,9 @@ var taskManager = new function(){
         world.makePreviousDeedsObsolete();
         var newTask = generateNewTask();
         currentTask = newTask;
+        dispatchTaskCreated(newTask);
         assert.isDef(currentTask);
-        displayTask(currentTask);
+        //displayTask(currentTask);
         window.clearInterval(oncePerS);
         secondsLeft = defaultTaskTime;
         oncePerS = window.setInterval(secondPassed, 1000);//PITÄISI OLLA SETTIMEOUT
@@ -95,38 +118,26 @@ var taskManager = new function(){
         assert.isCompletelyDefined(actions);
         assert.arrHasContent(actions);
         var newAction = utility.randomFromArray(availableActions);
-        /*
-         * 
-         * poimitaan targeteista sellainen, joka on pöydällä. Mutta entä jos
-         * mikään sopiva targetti ei ole?
-         */
-        var newTarget = utility.randomFromArray(newAction.availableObjects);
+        var newTarget = utility.randomFromArray(availableObjects);
+        console.log("new action is " + newAction.name);
         var newTask = createTask(newAction, newTarget);
         assert.areDef(newAction, newTarget, newTask);
         assert.areDef(newTask.action, newTask.target);
         return newTask;
     };
     
+    /*
+     * EI TARVITTANE, UI VOI HOITAA HOMMAN EVENTIN PERUSTEELLA
     var displayTask = function(task){
-        //console.log("about to display task");
+        console.log("about to display task");
         assert.isDef(task);
         var inst = taskToInstruction(task);
-        task.instructionText = inst;
+        task.instructionText = inst; // TARVITAANKO INSTRUCTION TEXTIÄ? UI VOISI ITSE TEKSTITTÄÄ
         assert.areDef(inst, task, task.action, task.target, task.action.name, task.target.name);
         //ui.changeInstructions(inst);
         var tgEvent = new CustomEvent('taskCreated', { 'detail': task}); //OIKEA PAIKKA?
         document.dispatchEvent(tgEvent);
-    };
-    
-    //EPÄSELVÄ FUNKTION NIMI, KOSKA VOISI KUVITELLA OLEVAN LANGUAGE MANAGERILLA
-    //JOTAIN TEKEMISTÄ TAI ETTÄ OLISI PELKKÄ TASK-OBJEKTIN SISÄLTÖ TEKSTINÄ.
-    var taskToInstruction = function(task){
-        assert.isDef(task.action, "Is undefined");
-        assert.isDef(task.target, "Is undefined");
-        assert.isDef(task.action.name);
-        var inst = "Your next task is to " + task.action.name + " " + task.target.name;
-        return inst;
-    };
+    };*/
     
     //TARVITAANKO EXECUTOINTIA TASKISSA?
     var createTask = function(action, targetWo){
@@ -147,5 +158,10 @@ var taskManager = new function(){
      */
     var pickAvailableWts = function(allPossible, count){
         return utility.pickWithoutReplacement(allPossible, count);
+    };
+    
+    var dispatchTaskCreated = function(newTask){
+        assert.isDef(newTask);
+        document.dispatchEvent(new CustomEvent('taskCreated', { 'detail': newTask}));
     };
 };

@@ -20,6 +20,10 @@
 window.onload = function(){
     console.log("loaded");
     world.initialize();
-    ui.initializeView(world.actions, world.worldObjects);
     taskManager.initialize();
+    var initialTask = taskManager.getCurrentTask();
+    assert.isDef(initialTask);
+    ui.initializeView(taskManager.getAvailableActions(), taskManager.getAvailableObjects(), initialTask);
+    
+    //UI EI OLE KUUNTELEMASSA TASK MANAGERIN ALKUEVENTTIA
 };

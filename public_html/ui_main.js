@@ -43,7 +43,8 @@ var ui = new function(){
         target:targetSelection
     };*/
     
-    this.initializeView = function(actions, targets){
+    this.initializeView = function(actions, targets, initialTask){
+        assert.areDef(actions, targets, initialTask);
         actionSelection = $('#' + actionSelectionId);
         targetSelection = $('#' + targetSelectionId);
         instructionArea = $('#instructionArea');
@@ -60,11 +61,9 @@ var ui = new function(){
         _actions = actions;
         
         document.addEventListener('taskCreated', function(e){
-            //console.log("taskCreated listened");
-            var ti = e.detail.instructionText;
-            console.log("ti: " + ti);
-            var gibberishedInst = languageManager.transformText(ti);
-            ui.changeInstructions(gibberishedInst);//TOIMIIKO?
+            console.log("taskCreated listened");
+            var task = e.detail;
+            reactToTaskCreated(task);
         });
         document.addEventListener('secondPassed', function(e){
             //console.log("secondPassed has been heard");
@@ -115,9 +114,11 @@ var ui = new function(){
         addWtBlocks(targetSelection, targets, taskManager.objectCount);
         
         messageLogArea.empty();
+        
+        reactToTaskCreated(initialTask);
     };
     
-    this.changeInstructions = function(instructions){
+    var changeInstructions = function(instructions){
         instructionArea.empty();
         instructionArea.append("Your task: " + instructions);
     };
@@ -290,6 +291,7 @@ var ui = new function(){
      * Return value: is desc a descentant of parent.
      * Pre-condition: desc and parent are jQuery objects.
      * desc is it's own descendant.
+     * EI KÄYTÖSSÄ
      */
     var isDescOf = function(desc, parent){
         return desc.closest(parent).length > 0;
@@ -349,6 +351,23 @@ var ui = new function(){
         });
         languageRulesArea.scrollTop(languageRulesArea.prop('scrollHeight'));
     };
+    
+    var reactToTaskCreated = function(task){
+        //var ti = task.instructionText;
+        //console.log("ti: " + ti);
+        //var gibberishedInst = languageManager.transformText(ti);
+        //changeInstructions(gibberishedInst);//TOIMIIKO?
+        assert.isDef(task);
+        changeInstructions(taskToInstructionText(task));
+    };
+    
+    var taskToInstructionText = function(task){
+        assert.isDef(task);
+        assert.areDef(task.action, task.target, task.action.name);
+        var inst = "Your next task is to " + task.action.name + " " + task.target.name;
+        return inst;
+    };
+    
 //    var murderChildren = function(el){
 //        while(el.childNodes.length > 0){
 //            el.removeChild(el.childNodes[0]);

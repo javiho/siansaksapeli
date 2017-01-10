@@ -20,31 +20,39 @@ var utility = {
     isLowerCase: function(character){
         return character === character.toLowerCase();
     },
-    //PERFORMANSSI? JA MUUTENKIN EI OIKEIN OLE JÄRKEVÄ
+    /*
+     * Pre-condition: all elements in arr are unique.
+     * PERFORMANSSI?
+     */
     pickWithoutReplacement: function(arr, sampleSize){
-        console.assert(arr.length >= sampleSize, "Error: sample size too large.");
-        var remainingIndices = [];
-        for(var i = 0; i < arr.length; i++){
-            remainingIndices.push(i);
-        }
-        var pickedIndices = [];
-        var pickedIndex;
+        //console.assert(arr.length >= sampleSize, "Error: sample size too large.");
+        var remainingElements = utility.copyArray(arr);
+        var pickedElements = [];
+        var pickedElement;
         for(var sampleNo = 0; sampleNo < sampleSize; sampleNo++){
-            pickedIndex = utility.getRandomIntInclusive(0, remainingIndices.length - 1);
-            pickedIndices.push(pickedIndex);
-            remainingIndices = utility.removeFromArray(remainingIndices, pickedIndex);
+            //console.log("remainingIndices.length: " + remainingIndices.length);
+            pickedElement = utility.randomFromArray(remainingElements);
+            //console.log(pickedIndex);
+            pickedElements.push(pickedElement);
+            utility.removeFromArray(remainingElements, remainingElements.indexOf(pickedElement));
+            //console.log("picked: " + pickedElement);
+            //console.log(remainingElements);
         }
-        var finalSamples = pickedIndices.map(function(pi){
-            return arr[pi];
-        });
-        return finalSamples;
+        return pickedElements;
     },
     randomFromArray: function(arr){
         assert.arrHasContent(arr);
         return arr[Math.floor(Math.random()*arr.length)];
     },
     removeFromArray: function(arr, index){
-        return arr.splice(index, 1);
+        console.assert(index >= 0, "Error: index < 0");
+        arr.splice(index, 1);
+    },
+    /*
+     * Returns a shallow copy.
+     */
+    copyArray: function(arr){
+        return arr.slice();
     }
 };
 
@@ -124,5 +132,8 @@ var assert = {
 };
 
 //TESTAUS
-//var rand = utility.pickWithoutReplacement(["a", "b", "c", "d", "e", "f", "g"], 1);
-//console.log(rand);
+/*console.log("TESTI ALKAA");
+var rand = utility.pickWithoutReplacement(["a", "b", "c", "d", "e", "f", "g"], 4);
+console.log("rand:");
+console.log(rand);
+console.log("TESTI LOPPUU");*/
