@@ -7,8 +7,10 @@
  * Jos klikkaa monta kertaa peräkkäin uusia viestejä lokiin, väri vaihtuu
  * suurella viiveellä.
  * The time for the task (is up puuttuu).
- * Jos jompi kumpi wtCount on suurempi kuin wt:iden määrä, ei toimi. Pitäisi
- * käsitellä virhe hienostuneemmin.
+ */
+/*
+ * REFAKTOROINTI:
+ * Jaettava ui useaan tiedostoon.
  */
 
 var taskManager = new function(){
@@ -18,16 +20,16 @@ var taskManager = new function(){
     var currentTask;
     var availableObjects = [];
     var availableActions = [];
-    this.objectCount = 1;
-    this.actionCount = 100;
+    this.objectCount = 10;
+    this.actionCount = 5;
     
     var oncePerS;//interval
     
     this.initialize = function(){
-        console.assert(taskManager.objectCount.length > 0 &&
-                taskManager.objectCount.length <= world.worldObjects.length &&
-                taskManager.actionCount.length <= world.actions.length &&
-                taskManager.actionCount.length > 0);
+        console.assert(taskManager.objectCount > 0 &&
+                taskManager.objectCount <= world.worldObjects.length &&
+                taskManager.actionCount <= world.actions.length &&
+                taskManager.actionCount > 0);
         availableObjects = pickAvailableWts(world.worldObjects, taskManager.objectCount);
         availableActions = pickAvailableWts(world.actions, taskManager.actionCount);
         assert.arrHasContent(availableObjects);
@@ -52,6 +54,42 @@ var taskManager = new function(){
             }
         });
         //console.log("intervalli asetettu");
+    };
+    
+    /*
+     * TÄYTYY OLLA NIIN, ETTÄ JÄÄ JOTAIN JÄLJELLE. TARKISTETTAVA.
+     * REFAKTOROITAVA MUUTENKIN.
+     * Pre-condition: all elements in wts are of same wt type.
+     * wts is not empty.
+     */
+    this.removeAvailableWts = function(wts){
+        assert.isDef(wts);
+        //console.log(wts);
+        if(!Array.isArray(wts)){
+            availableActions = availableActions.filter(function(el){
+                return !(wts.name === el.name);
+            });
+            availableObjects = availableObjects.filter(function(el){
+                return !(wts.name === el.name);
+            });
+            return;
+        }
+        assert.arrHasContent(wts);
+        if(world.isAction(wts[0])){
+            availableActions = availableActions.filter(function(el){
+                return wts.some(function(wt){
+                    wt.name === el.name;
+                }) === false;
+            });
+        }
+        if(world.isWorldObject(wts[0])){
+            availableObjects = availableObjects.filter(function(el){
+                return wts.some(function(wt){
+                    wt.name === el.name;
+                }) === false;
+            });
+        }
+        //document.dispatchEvent(new CustomEvent('availableWtsChanged'));
     };
     
     this.getAvailableObjects = function(){

@@ -136,6 +136,19 @@ var world = new function(){
             d.recent = false;
         });
     };
+    //PITÄISIKÖ TARKISTAA, ONKO WT:TÄ YLIPÄÄTÄÄN OLEMASSA?
+    this.isAction = function(wt){
+        assert.isDef(wt);
+        assert.isDef(wt.name);
+        return world.actions.some(function(tempWt){
+            return tempWt.name === wt.name;
+        });
+    };
+    this.isWorldObject = function(wt){
+        return world.worldObjects.some(function(tempWt){
+            return tempWt.name === wt.name;
+        });
+    };
     var addWorldObjects = function(){
         var woInfo;
         for(var i = 0; i < wosInfo.length; i++){
@@ -184,6 +197,7 @@ var world = new function(){
         assert.areDef(ac.name, ac.imageSource, ac.targets);
         return ac;
     };
+    //EIKÖ TÄMÄ OLE MYÖS UI:SSA? PITÄISI POISTAA SIELTÄ.
     var woNameToWo = function(woName){
         assert.areDef(woName);
         assert.arrHasContent(world.worldObjects);

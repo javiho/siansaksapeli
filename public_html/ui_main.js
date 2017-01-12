@@ -33,6 +33,7 @@ var ui = new function(){
         defaultColor:"white"
     };
     
+    //EIKÖ TARGETIN PITÄISI OLLA WORLD OBJECT?
     var wtTypes = {
         action:"action",
         target:"target"
@@ -53,9 +54,13 @@ var ui = new function(){
         selectedTargetInfo = $('#selectedTargetInfo');
         selectedActionInfo = $('#selectedActionInfo');
         actionExecutionButton = $('#actionExecutionButton');
+        removeActionButton = $('#removeActionButton');
+        removeWoButton = $('#removeWoButton');
         messageLogArea = $('#messageLogArea');
         languageRulesArea = $('#languageRulesArea');
         actionExecutionButton.click(onActionExecutionButton);
+        removeActionButton.click({wtType: wtTypes.action}, onRemoveWtButton);
+        removeWoButton.click({wtType: wtTypes.target}, onRemoveWtButton);
         
         _objects = targets;
         _actions = actions;
@@ -101,11 +106,14 @@ var ui = new function(){
         });
         document.addEventListener('timeUp', function(e){
             var d = e.detail;
-            appendToMessageLog("The time for the task ", d, " is up!", messageColors.red);
+            appendProcessedToML("The time for the task ", d, " is up!", messageColors.red);
         });
         document.addEventListener('languageRuleAdded', function(){
             fillLanguageRulesArea();
         });
+//        document.addEventListener('availableWtsChanged', function(){
+//            ET TARVITA, JOS PIIRRETÄÄN ITSE BOKSI INPUTIN SEURATTUA
+//        });
         
         //EHKÄ OTETAAN MYÖHEMMIN KÄYTTÖÖN:
         //addImages(actionSelection, actions, "action");
@@ -134,48 +142,6 @@ var ui = new function(){
     };
     
     /*
-     * Pre-condition: objects are world things.
-     */
-    /*var addImages = function(element, objects){
-        var img;
-        var o;
-        //console.log(objects);
-        for(var i = 0; i < objects.length; i++){
-            o = objects[i];
-            img = $('<img>');
-            img.attr('src', o.imageSource);
-//            img.attr('width', 300);
-//            img.attr('height', 300);
-            img.attr('alt', o.name + " image");
-            img.attr('class', "world-thing-image");//TARVITAANKO TÄTÄ?
-            img.attr('data-wt-name', o.name);
-            element.append(img);
-        }
-        $('.world-thing-image').on('click', function(){
-            assert.isDef($(this));
-            var self = $(this);
-            assert.isDef(self.attr('data-wt-name'));
-            assert.isDef(self.attr('alt'));
-            var wtName = self.attr('data-wt-name');
-            //assert.isDef(self.attr('data-image-type'));
-            //var wtiContainer; //world thing image container
-            if(isDescOf(self, actionSelection)){
-                selectedActionName = wtName;
-            }else if(isDescOf(self, targetSelection)){
-                selectedTargetName = wtName;
-            }else{
-                throw "wtiContainer not found.";
-            }
-            //var ancestorDiv = $(this).closest(actionSelectionId, targetSelectionId);
-            //var ancestorDiv = $(this).closest(targetSelectionId, actionSelectionId);
-            //console.log();
-            //console.log("anc div: " + ancestorDiv.attr('id'));
-            //console.log($(this).attr('alt'));
-            updateSelectedInfoArea();
-        });
-    };*/
-    
-    /*
      * element is actionSelection or targetSelection.
      */
     var addWtBlocks = function(element, wts, count){
@@ -195,10 +161,6 @@ var ui = new function(){
             var wtBlock = createWtBlock(wt.name, wtType);
             element.append(wtBlock);
         }
-        /*wts.forEach(function(wt){
-            var wtBlock = createWtBlock(wt.name, wtType);
-            element.append(wtBlock);
-        });*/
     };
     
     /*
@@ -208,7 +170,8 @@ var ui = new function(){
         assert.areDef(wtName, wtType);
         var newSelInfo = {};
         newSelInfo[wtType] = wtName;
-        var id = "wtBlock" + wtName;
+        //Id can't contain spaces.
+        var id = "wtBlock" + nameToIdPart(wtName);
         var div = $('<div/>', {
             id: id,
             on: {
@@ -247,18 +210,37 @@ var ui = new function(){
         assert.isDeedDef(deed);
         //world.isValidDeed()
         world.attemptDeed(deed);
+    };
+    
+    var onRemoveWtButton = function(event){
         /*
-         * onko targetti actionille sopiva?
-         * jos on, onko se se, mitä haluttiin?
-         * molemmista erilainen palauta
-         * 
-         * lähetetään vain yritys maailmalle, ja se sitten eventoi, että mitä näytetään kyyttäjälle
+         * wtTypen perusteella mikä halutaan poistaa
+         * sanotaan task managerille, että poista tämä
+         * piirretään uudestaan task managerin tietojen mukaan
+         * TAI poistetaan boksi ja tarkistetaan varmuuden vuoksi,
+         * että task manager ja ui sisältävät samat avalilable taskit
          */
-        
-        
-        //muodostetaan action
-        //executoidaan se
-        //world....
+        var wtType = event.data.wtType;
+        var removedName;
+        console.log(wtType);
+        if(wtType === wtTypes.action){
+            //assert.isDef(selectedActionName);
+            if(!utility.isDef(selectedActionName)){
+                alert("You haven't selected any actions!");
+                return;
+            }
+            removedName = selectedActionName;
+        }else if(wtType === wtTypes.target){
+            //assert.isDef(selectedTargetName);
+            if(!utility.isDef(selectedTargetName)){
+                alert("You haven't selected any objects!");
+                return;
+            }
+            removedName = selectedTargetName;
+        }//else throw "Error: erroneous wtType.";
+        var removed = getWtByName(removedName);
+        taskManager.removeAvailableWts(removed);
+        removeWtBlock(removed);
     };
     
     /*
@@ -269,12 +251,16 @@ var ui = new function(){
      * REFAKTOROINTIA? KAKTSOISTEHTÄVÄ JA DUPLIKOINTIA
      */
     var updateSelectedInfoArea = function(newSelectedNames){
-        var newSelAcName = newSelectedNames.action;
-        var newSelTargName = newSelectedNames.target;
+        var newSelAcName;
+        var newSelTargName;
+        if(utility.isDef(newSelectedNames)){
+            newSelAcName = newSelectedNames.action;
+            newSelTargName = newSelectedNames.target;
+        }
         selectedActionInfo.empty();
         selectedTargetInfo.empty();
         if(utility.isDef(newSelAcName)){
-            selectedActionInfo.text(newSelAcName)
+            selectedActionInfo.text(newSelAcName);
             selectedActionName = newSelAcName;
         }else{
             selectedActionInfo.text(selectedActionName);
@@ -285,6 +271,8 @@ var ui = new function(){
         }else{
             selectedTargetInfo.text(selectedTargetName);
         }
+        //console.log("selectedInfoArea updated. Now also selectedActionName is " +
+        //        selectedActionName + " and selectedTargetName is " + selectedTargetName);
     };
     
     /*
@@ -366,6 +354,34 @@ var ui = new function(){
         assert.areDef(task.action, task.target, task.action.name);
         var inst = "Your next task is to " + task.action.name + " " + task.target.name;
         return inst;
+    };
+    
+    var removeWtBlock = function(wt){
+        assert.isDef(wt);
+        var wtBlock = $('#wtBlock' + nameToIdPart(wt.name));
+        //console.log("wt.name: " + wt.name);
+        assert.isDef(wtBlock);
+        //console.log(wtBlock);
+        if(selectedActionName === wt.name){
+            //PITÄISIKÖ MUUTTAA NULLIKSI?
+            selectedActionName = void 0;
+        }
+        if(selectedTargetName === wt.name){
+            selectedTargetName = void 0;
+        }
+        updateSelectedInfoArea();
+        wtBlock.remove();
+        //TARKISTETTAVA, ONKO NYKYINEN BLOKKISETTI KONSISTENNTTI TASK MANAGERIN AVAILABLEJEN KANSSA
+    };
+    
+    var nameToIdPart = function(name){
+        return nameToSpaceless(name);
+    };
+    
+    //ONGELMA ON SE, ETTÄ ID:ISSÖ IE SAA OLLA VÄLILYÖNTEJÄ
+    var nameToSpaceless = function(name){
+        var withoutSpaces = name.replace(new RegExp(" ", "g"), '');
+        return withoutSpaces;
     };
     
 //    var murderChildren = function(el){
