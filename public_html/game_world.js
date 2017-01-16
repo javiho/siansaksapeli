@@ -86,11 +86,13 @@ var world = new function(){
     this.wasDone = function(task){
         assert.isDef(task);
         return world.deedHistory.some(function(histTask){
-            utility.prpr(histTask);
-            assert.areDef(histTask, histTask.recent, histTask.targets);
+            //utility.prpr(histTask);
+            //console.log("targets:");
+            //utility.prpr(histTask.targets);
+            assert.areDef(histTask, histTask.recent, histTask.action.targets);
             return histTask.name === task.name &&
             histTask.recent === true &&
-            histTask.targets.some(function(aTargetWo){
+            histTask.action.targets.some(function(aTargetWo){
                 return aTargetWo.name === task.name;
             });
         });

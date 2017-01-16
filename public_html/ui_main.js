@@ -20,11 +20,14 @@ var ui = new function(){
     var languageRulesArea;
     var actionsNextTurnInfo;
     var objectsNextTurnInfo;
+    var reduceActionsToAddButton;
+    var reduceTargetsToAddButton;
     //The above are jQuery objects
     var actionExecutionButton;
     
-    var _objects;
-    var _actions;
+    //var _objects; POISTETTU HILJATTAIN
+    //var _actions;
+    var wtsToAddCount = {actions:0, targets:0};
     
     //jQuery
 //    var selectedTargetImage;//TARVITAANKO?
@@ -68,6 +71,8 @@ var ui = new function(){
         removeWoButton = $('#removeWoButton');
         addActionButton = $('#addActionButton');
         addObjectButton = $('#addObjectButton');
+        reduceTargetsToAddButton = $('#reduceTargetsToAddButton');
+        reduceActionsToAddButton = $('#reduceActionsToAddButton');
         messageLogArea = $('#messageLogArea');
         languageRulesArea = $('#languageRulesArea');
         actionsNextTurnInfo = $('#actionsNextTurnInfo');
@@ -75,11 +80,13 @@ var ui = new function(){
         actionExecutionButton.click(onActionExecutionButton);
         removeActionButton.click({wtType: wtTypes.action}, onRemoveWtButton);
         removeWoButton.click({wtType: wtTypes.target}, onRemoveWtButton);
-        addActionButton.click({wtType: wtTypes.action}, onAddWtButton);
-        addObjectButton.click({wtType: wtTypes.target}, onAddWtButton);
+        addActionButton.click({wtType: wtTypes.action, count:1}, onAlterWtCountButton);
+        addObjectButton.click({wtType: wtTypes.target, count:1}, onAlterWtCountButton);
+        reduceActionsToAddButton.click({wtType: wtTypes.action, count:-1}, onAlterWtCountButton);
+        reduceTargetsToAddButton.click({wtType: wtTypes.target, count:-1}, onAlterWtCountButton);
         
-        _objects = targets;
-        _actions = actions;
+        //_objects = targets;
+        //_actions = actions;
         
         document.addEventListener('taskCreated', function(e){
             console.log("taskCreated listened");
@@ -105,6 +112,10 @@ var ui = new function(){
             var d = e.detail;
             //alert("Task '" + d.action.name + " " + d.target.name + "' completed");
             appendProcessedToML("Task '", d, "' completed", messageColors.green);
+            addPlannedWts();
+            wtsToAddCount.actions = 0;
+            wtsToAddCount.targets = 0;
+            updateOtherStateInfo();
             //A new text transform rule is added, so world thing names in selected
             //info area must be updated according to the new rule. (EI PIDÄ PAIKKAANSA)
             //updateSelectedInfoArea();
@@ -258,20 +269,35 @@ var ui = new function(){
         removeWtBlock(removed);
     };
     
-    var onAddWtButton = function(event){
-        /*
-         * sanotaan task managerille, että tuli yksi lisää
-         * kuunnellaan, että task manager lähettää tapahtuman, että mikä tuli
-         * tehdään boksi
-         * lisätään se
-         */
+    var onAlterWtCountButton = function(event){
         console.log("onAddWtButton");
         var wtType = event.data.wtType;
+        var count = event.data.count;
         if(wtType === wtTypes.action){
-            taskManager.addAvailableWts(1, wtTypes.action);
+            wtsToAddCount.actions += count;
         }else if(wtType === wtTypes.target){
-            taskManager.addAvailableWts(1, wtTypes.target);
+            wtsToAddCount.targets += count;
         }
+        if(wtsToAddCount.actions < 0) wtsToAddCount.actions = 0;
+        if(wtsToAddCount.targets < 0) wtsToAddCount.targets = 0;
+        updateOtherStateInfo();
+    };
+    
+    /*
+     * Adds the amount of wts which has been specified.
+     */
+    var addPlannedWts = function(){
+        assert.areDef(wtsToAddCount.targets, wtsToAddCount.actions);
+        taskManager.addAvailableWts(wtsToAddCount.actions, wtTypes.action);
+        taskManager.addAvailableWts(wtsToAddCount.targets, wtTypes.target);
+        //taskManager.addAvailableWts(1, wtTypes.action);
+        //taskManager.addAvailableWts(1, wtTypes.target);
+        //...
+    };
+    
+    var updateOtherStateInfo = function(){
+        actionsNextTurnInfo.text(wtsToAddCount.actions);
+        objectsNextTurnInfo.text(wtsToAddCount.targets);
     };
     
     /*
