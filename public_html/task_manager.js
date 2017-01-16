@@ -15,8 +15,11 @@
 var taskManager = new function(){
     
     var defaultTaskTime = 10;//seconds
-    var secondsLeft = defaultTaskTime;
+    var defaultAbsoluteTaskTime = 20;//seconds
+    var secondsLeft = defaultTaskTime;//of default task time
+    var secondsToAbsolute = defaultAbsoluteTaskTime;
     var currentTask;
+    var taskRunningLate = false;
     var availableObjects = [];
     var availableActions = [];
     this.objectCount = 10;
@@ -48,7 +51,7 @@ var taskManager = new function(){
         document.addEventListener('newDeedDone', function(e){
             var d = e.detail;
             if(areDeedsEqual(currentTask, d)){
-                reactToCompletedTask();
+                reactToCompletedTask(true);
             }else{
                 //EI OLE HYVÄ, ETTÄ TÄLLAINEN EVENTTI ON
                 //JOKO KÄYTTÖLIITTYMÄN PITÄSI KYSYÄ TASKMANAGERILTA VALMISTUMISESTA
@@ -140,13 +143,19 @@ var taskManager = new function(){
     
     var secondPassed = function(){
         secondsLeft += -1;
+        secondsToAbsolute += -1;
         //console.log("seconds left: " + secondsLeft);
         //ui.changeTimerTime(secondsLeft);
         var spEvent = new CustomEvent('secondPassed', {'detail': secondsLeft});
         document.dispatchEvent(spEvent);
-        if(secondsLeft <= 0){
-            window.clearInterval(oncePerS);
+        if(secondsLeft <= 0 && !taskRunningLate){
+            //window.clearInterval(oncePerS);
             taskTimeUp();
+            taskRunningLate = true;
+        }
+        if(secondsToAbsolute <= 0){
+            //window.clearInterval(oncePerS);
+            reactToCompletedTask(false);
         }
     };
     
@@ -154,10 +163,11 @@ var taskManager = new function(){
         //alert("The time is up!");
         document.dispatchEvent(new CustomEvent('timeUp', {detail: currentTask}));
         if(isTaskDone(currentTask)){
-            reactToCompletedTask();
+            reactToCompletedTask(true);
         }else{
-            world.makePreviousDeedsObsolete();
-            document.dispatchEvent(new CustomEvent('gameOver'));
+            //Nothing, for now at least
+            //world.makePreviousDeedsObsolete();
+            //document.dispatchEvent(new CustomEvent('gameOver'));
             //alert("Game over!");
         }
     };
@@ -168,19 +178,27 @@ var taskManager = new function(){
         return world.wasDone(task);
     };
     
-    var reactToCompletedTask = function(){
+    //PITÄISI TOIMIA MYÖS LOPETETUILLE, MUTTA EI VALMISTUNEILLE
+    var reactToCompletedTask = function(succeeded){
         //HUOM! Pelin alun displayTask on eri kuin että task olisi tehty valmiiksi.
+        if(succeeded){
+            console.log("Task succeeded");
+        }else{
+            console.log("Task failed");
+        }
         document.dispatchEvent(new CustomEvent('taskCompleted', {detail:currentTask}));
         languageManager.addNewRule();
         world.makePreviousDeedsObsolete();
         var newTask = generateNewTask();
         currentTask = newTask;
         dispatchTaskCreated(newTask);
+        taskRunningLate = false;
         assert.isDef(currentTask);
         //displayTask(currentTask);
         window.clearInterval(oncePerS);
         secondsLeft = defaultTaskTime;
-        oncePerS = window.setInterval(secondPassed, 1000);//PITÄISI OLLA SETTIMEOUT
+        secondsToAbsolute = defaultAbsoluteTaskTime;
+        oncePerS = window.setInterval(secondPassed, 1000);//PITÄISI OLLA SETTIMEOUT -MIKSI?
     };
     
     var generateNewTask = function(){
