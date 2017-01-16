@@ -344,6 +344,7 @@ var ui = new function(){
     
     /*
      * Return value: a world thing object wt, where wt.name == wtName.
+     * EIKÖ VOISI SUORAAN KÄYTTÄÄ WORLDIN FUNKTIOTA?
      */
     var getWtByName = function(wtName){
         var wt = world.getWtByName(wtName);
