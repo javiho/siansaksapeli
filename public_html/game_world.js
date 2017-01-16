@@ -86,9 +86,11 @@ var world = new function(){
     this.wasDone = function(task){
         assert.isDef(task);
         return world.deedHistory.some(function(histTask){
+            utility.prpr(histTask);
+            assert.areDef(histTask, histTask.recent, histTask.targets);
             return histTask.name === task.name &&
             histTask.recent === true &&
-            histTask.targetWos.some(function(aTargetWo){
+            histTask.targets.some(function(aTargetWo){
                 return aTargetWo.name === task.name;
             });
         });
@@ -149,6 +151,14 @@ var world = new function(){
             return tempWt.name === wt.name;
         });
     };
+    this.getWtByName = function(wtName){
+        var allWts = getAllWts();
+        var theWt = allWts.find(function(wt){
+            return wt.name === wtName;
+        });
+        assert.isDef(theWt);
+        return theWt;
+    };
     var addWorldObjects = function(){
         var woInfo;
         for(var i = 0; i < wosInfo.length; i++){
@@ -186,7 +196,6 @@ var world = new function(){
         //alert("Action " + action.name + " with target " + targetWo.name + "has been acted!");
         document.dispatchEvent(new CustomEvent('newDeedDone', {detail: deed}));
     };
-    //EI PITÄISI OLLA EXECUTIONIA? KOSKA SE ON VAIN TASKISSA
     var createAction = function(name, imageSrc, targetWos){
         assert.isDef(targetWos);
         var ac = {
@@ -206,6 +215,10 @@ var world = new function(){
         });
         assert.isDef(wo);
         return wo;
+    };
+    
+    var getAllWts = function(){
+        return world.actions.concat(world.worldObjects);
     };
     
     function getAllWoNames(){

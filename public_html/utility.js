@@ -4,6 +4,10 @@ var utility = {
     isDef: function(o){
         return !(typeof o === 'undefined');
     },
+    isNull: function(o){
+        if(o === null) return true;
+        return false;
+    },
     //min is inclusive and max is exclusive.
     getRandomInt: function(min, max) {
         min = Math.ceil(min);
@@ -53,6 +57,10 @@ var utility = {
      */
     copyArray: function(arr){
         return arr.slice();
+    },
+    //TARVITAANKO?
+    prpr: function(obj){
+        console.log(JSON.stringify(obj, null, 2));
     }
 };
 
@@ -70,6 +78,9 @@ var assert = {
             throw m;
         }
     },
+    /*
+     * Only checks for undefined, not null.
+     */
     isDef: function(obj, message){
         var mess = message;
         if(typeof message === 'undefined'){
@@ -78,6 +89,15 @@ var assert = {
         if(typeof obj === 'undefined'){
             throw mess;
         }
+    },
+    /*
+     * Checks for null and undefined
+     */
+    notNull: function(obj){
+        if(utility.isNull(obj)){
+            throw "Error: null";
+        };
+        assert.isDef(obj, "Error: not null but undefined");
     },
     /*
      * Is meant to be called with arbitrary number of parameters which need to be
@@ -89,7 +109,7 @@ var assert = {
         for(var i = 0; i < arguments.length; i++){
             a = arguments[i];
             if(!utility.isDef(a)){
-                throw "Error: argument #" + (i + 1) + " is undefined. asdasd";
+                throw "Error: argument #" + (i + 1) + " is undefined";
             }
         }
     },

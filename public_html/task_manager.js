@@ -6,7 +6,6 @@
  * BUGIT:
  * Jos klikkaa monta kertaa peräkkäin uusia viestejä lokiin, väri vaihtuu
  * suurella viiveellä.
- * The time for the task (is up puuttuu).
  */
 /*
  * REFAKTOROINTI:
@@ -24,6 +23,12 @@ var taskManager = new function(){
     this.actionCount = 5;
     
     var oncePerS;//interval
+    
+    //MÄÄRITELTY MYÖS UI:SSA
+    var wtTypes = {
+        action:"action",
+        target:"target"
+    };
     
     this.initialize = function(){
         console.assert(taskManager.objectCount > 0 &&
@@ -92,6 +97,35 @@ var taskManager = new function(){
         //document.dispatchEvent(new CustomEvent('availableWtsChanged'));
     };
     
+    /*
+     * Adds random available wts of wtType.
+     * MUTTA OLIKO NIIDEN TOSIAAN TARKOITUS OLLA RANDOMEITA?
+     * Fires an event.
+     * @param {type} count
+     * @param {type} wtType
+     */
+    this.addAvailableWts = function(count, wtType){
+        //console.log("about to add");
+        var unused;
+        var newWts;
+        if(wtType === wtTypes.action){
+            unused = getUnusedWts(world.actions);
+            //console.log(unused);
+            newWts = pickAvailableWts(unused, count);
+            //console.log(newWts);
+            availableActions = availableActions.concat(newWts);
+            assert.notNull(newWts);
+        } else if(wtType === wtTypes.target){
+            unused = getUnusedWts(world.worldObjects);
+            //console.log(unused);
+            newWts = pickAvailableWts(unused, count);
+            //console.log(newWts);
+            availableObjects = availableObjects.concat(newWts);
+            assert.notNull(newWts);
+        } else throw "Erroneous wtType.";
+        document.dispatchEvent(new CustomEvent('availableWtsAdded', {detail:newWts}));
+    };
+    
     this.getAvailableObjects = function(){
         return availableObjects;
     };
@@ -157,7 +191,7 @@ var taskManager = new function(){
         assert.arrHasContent(actions);
         var newAction = utility.randomFromArray(availableActions);
         var newTarget = utility.randomFromArray(availableObjects);
-        console.log("new action is " + newAction.name);
+        //console.log("new action is " + newAction.name);
         var newTask = createTask(newAction, newTarget);
         assert.areDef(newAction, newTarget, newTask);
         assert.areDef(newTask.action, newTask.target);
@@ -193,6 +227,7 @@ var taskManager = new function(){
     
     /*
      * allPossible is array of all wts of one type.
+     * PITÄÄKÖ TÄMÄN TOSIAAN OLLA OMA FUNKTIONSA?
      */
     var pickAvailableWts = function(allPossible, count){
         return utility.pickWithoutReplacement(allPossible, count);
@@ -201,5 +236,31 @@ var taskManager = new function(){
     var dispatchTaskCreated = function(newTask){
         assert.isDef(newTask);
         document.dispatchEvent(new CustomEvent('taskCreated', { 'detail': newTask}));
+    };
+    
+    /*
+     * wts is an array which is a subset of all wts.
+     * Return value: those of  which are not available.
+     */
+    var getUnusedWts = function(wts){
+        var allAvWts = getAllAvailableWts();
+        //console.log("all avaulable");
+        //utility.prpr(allAvWts.map(function(wt){return wt.name;}));
+        var unused = wts.filter(function(wt){
+            var isAv = allAvWts.some(function(wt2){
+                //console.log(wt2.name + ", " + wt.name);
+                return wt2.name === wt.name;
+            });
+            //console.log("availables contain " + wt.name + ": " + isAv);
+            return !isAv;
+        });
+        //console.log("unused");
+        //utility.prpr(unused.map(function(wt){return wt.name;}));
+        //console.log(JSON.stringify(unused, null, 2));
+        return unused;
+    };
+    
+    var getAllAvailableWts = function(){
+        return availableActions.concat(availableObjects);
     };
 };

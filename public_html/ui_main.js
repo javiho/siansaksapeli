@@ -1,3 +1,5 @@
+"use strict";
+
 //Assumes that world things are identified by their names.
 var ui = new function(){
     var actionSelectionId = "actionSelection";
@@ -11,6 +13,13 @@ var ui = new function(){
     var selectedTargetInfo;
     var selectedActionInfo;
     var messageLogArea;
+    var removeActionButton;
+    var removeWoButton;
+    var addActionButton;
+    var addObjectButton;
+    var languageRulesArea;
+    var actionsNextTurnInfo;
+    var objectsNextTurnInfo;
     //The above are jQuery objects
     var actionExecutionButton;
     
@@ -34,6 +43,7 @@ var ui = new function(){
     };
     
     //EIKÖ TARGETIN PITÄISI OLLA WORLD OBJECT?
+    //PITÄISI MÄÄRITELLÄ SELLAISESSA PAIKASSA, ETTÄ KAIKKI MODUULIT PÄÄSEVÄT KÄSIKSI
     var wtTypes = {
         action:"action",
         target:"target"
@@ -56,11 +66,17 @@ var ui = new function(){
         actionExecutionButton = $('#actionExecutionButton');
         removeActionButton = $('#removeActionButton');
         removeWoButton = $('#removeWoButton');
+        addActionButton = $('#addActionButton');
+        addObjectButton = $('#addObjectButton');
         messageLogArea = $('#messageLogArea');
         languageRulesArea = $('#languageRulesArea');
+        actionsNextTurnInfo = $('#actionsNextTurnInfo');
+        objectsNextTurnInfo = $('#objectsNextTurnInfo');
         actionExecutionButton.click(onActionExecutionButton);
         removeActionButton.click({wtType: wtTypes.action}, onRemoveWtButton);
         removeWoButton.click({wtType: wtTypes.target}, onRemoveWtButton);
+        addActionButton.click({wtType: wtTypes.action}, onAddWtButton);
+        addObjectButton.click({wtType: wtTypes.target}, onAddWtButton);
         
         _objects = targets;
         _actions = actions;
@@ -111,6 +127,11 @@ var ui = new function(){
         document.addEventListener('languageRuleAdded', function(){
             fillLanguageRulesArea();
         });
+        document.addEventListener('availableWtsAdded', function(e){
+            var d = e.detail;
+            assert.notNull(d);
+            reactToAddedAvailableWts(d);
+        });
 //        document.addEventListener('availableWtsChanged', function(){
 //            ET TARVITA, JOS PIIRRETÄÄN ITSE BOKSI INPUTIN SEURATTUA
 //        });
@@ -143,6 +164,7 @@ var ui = new function(){
     
     /*
      * element is actionSelection or targetSelection.
+     * MIKÄ IHME ON COUNT? EI PITÄISI TARVITA.
      */
     var addWtBlocks = function(element, wts, count){
         console.assert(wts.length >= count, "Error: count " + count + ", wts length " + wts.length);
@@ -213,13 +235,6 @@ var ui = new function(){
     };
     
     var onRemoveWtButton = function(event){
-        /*
-         * wtTypen perusteella mikä halutaan poistaa
-         * sanotaan task managerille, että poista tämä
-         * piirretään uudestaan task managerin tietojen mukaan
-         * TAI poistetaan boksi ja tarkistetaan varmuuden vuoksi,
-         * että task manager ja ui sisältävät samat avalilable taskit
-         */
         var wtType = event.data.wtType;
         var removedName;
         console.log(wtType);
@@ -241,6 +256,22 @@ var ui = new function(){
         var removed = getWtByName(removedName);
         taskManager.removeAvailableWts(removed);
         removeWtBlock(removed);
+    };
+    
+    var onAddWtButton = function(event){
+        /*
+         * sanotaan task managerille, että tuli yksi lisää
+         * kuunnellaan, että task manager lähettää tapahtuman, että mikä tuli
+         * tehdään boksi
+         * lisätään se
+         */
+        console.log("onAddWtButton");
+        var wtType = event.data.wtType;
+        if(wtType === wtTypes.action){
+            taskManager.addAvailableWts(1, wtTypes.action);
+        }else if(wtType === wtTypes.target){
+            taskManager.addAvailableWts(1, wtTypes.target);
+        }
     };
     
     /*
@@ -289,17 +320,9 @@ var ui = new function(){
      * Return value: a world thing object wt, where wt.name == wtName.
      */
     var getWtByName = function(wtName){
-        assert.isDef(wtName);
-        assert.isDef(_objects);
-        var wt = _objects.find(isCorrect);
-        if(!utility.isDef(wt)){
-            wt = _actions.find(isCorrect);
-        }
+        var wt = world.getWtByName(wtName);
         assert.isDef(wt);
         return wt;
-        function isCorrect(tempWt){
-            return tempWt.name === wtName;
-        }
     };
     
     var appendToMessageLog = function(newMessage, color){
@@ -372,6 +395,19 @@ var ui = new function(){
         updateSelectedInfoArea();
         wtBlock.remove();
         //TARKISTETTAVA, ONKO NYKYINEN BLOKKISETTI KONSISTENNTTI TASK MANAGERIN AVAILABLEJEN KANSSA
+    };
+    
+    var reactToAddedAvailableWts = function(newWts){
+        assert.isDef(newWts);
+        var newAcs = newWts.filter(function(wt){
+            //console.log("ac" + wt);
+            return world.isAction(wt);
+        });
+        var newObjs = newWts.filter(function(wt){
+            return world.isWorldObject(wt);
+        });
+        if(utility.isDef(newAcs)) addWtBlocks(actionSelection, newAcs, newAcs.length);
+        if(utility.isDef(newObjs)) addWtBlocks(targetSelection, newObjs, newObjs.length);
     };
     
     var nameToIdPart = function(name){
