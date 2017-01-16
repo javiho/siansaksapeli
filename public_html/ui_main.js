@@ -108,10 +108,15 @@ var ui = new function(){
             //alert("You can't " + d.action.name + " " + d.target.name + "!");
             appendProcessedToML("You can't ", d, "!", messageColors.yellow);
         });
-        document.addEventListener('taskCompleted', function(e){
-            var d = e.detail;
+        document.addEventListener('taskFinished', function(e){
+            var succeeded = e.detail.succeeded;
+            var currentTask = e.detail.currentTask;
             //alert("Task '" + d.action.name + " " + d.target.name + "' completed");
-            appendProcessedToML("Task '", d, "' completed", messageColors.green);
+            if(succeeded){
+                appendProcessedToML("Task '", currentTask, "' completed", messageColors.green);
+            }else{
+                appendProcessedToML("You failed the task '", currentTask, "'!", messageColors.red);
+            }
             addPlannedWts();
             wtsToAddCount.actions = 0;
             wtsToAddCount.targets = 0;

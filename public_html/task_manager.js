@@ -51,7 +51,7 @@ var taskManager = new function(){
         document.addEventListener('newDeedDone', function(e){
             var d = e.detail;
             if(areDeedsEqual(currentTask, d)){
-                reactToCompletedTask(true);
+                reactToFinishedTask(true);
             }else{
                 //EI OLE HYVÄ, ETTÄ TÄLLAINEN EVENTTI ON
                 //JOKO KÄYTTÖLIITTYMÄN PITÄSI KYSYÄ TASKMANAGERILTA VALMISTUMISESTA
@@ -155,7 +155,7 @@ var taskManager = new function(){
         }
         if(secondsToAbsolute <= 0){
             //window.clearInterval(oncePerS);
-            reactToCompletedTask(false);
+            reactToFinishedTask(false);
         }
     };
     
@@ -163,7 +163,7 @@ var taskManager = new function(){
         //alert("The time is up!");
         document.dispatchEvent(new CustomEvent('timeUp', {detail: currentTask}));
         if(isTaskDone(currentTask)){
-            reactToCompletedTask(true);
+            reactToFinishedTask(true);
         }else{
             //Nothing, for now at least
             //world.makePreviousDeedsObsolete();
@@ -179,14 +179,14 @@ var taskManager = new function(){
     };
     
     //PITÄISI TOIMIA MYÖS LOPETETUILLE, MUTTA EI VALMISTUNEILLE
-    var reactToCompletedTask = function(succeeded){
+    var reactToFinishedTask = function(succeeded){
         //HUOM! Pelin alun displayTask on eri kuin että task olisi tehty valmiiksi.
         if(succeeded){
             console.log("Task succeeded");
         }else{
             console.log("Task failed");
         }
-        document.dispatchEvent(new CustomEvent('taskCompleted', {detail:currentTask}));
+        document.dispatchEvent(new CustomEvent('taskFinished', {detail:{currentTask:currentTask, succeeded:succeeded}}));
         languageManager.addNewRule();
         world.makePreviousDeedsObsolete();
         var newTask = generateNewTask();
