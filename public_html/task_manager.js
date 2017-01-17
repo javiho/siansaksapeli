@@ -6,6 +6,7 @@
  * BUGIT:
  * Jos klikkaa monta kertaa peräkkäin uusia viestejä lokiin, väri vaihtuu
  * suurella viiveellä.
+ * Lisättävät wt:t vaikuttavat edellisen vuoron pisteisiin.
  */
 /*
  * REFAKTOROINTI:
@@ -20,10 +21,11 @@ var taskManager = new function(){
     var secondsToAbsolute = defaultAbsoluteTaskTime;
     var currentTask;
     var taskRunningLate = false;
+    var points = 0;
     var availableObjects = [];
     var availableActions = [];
-    this.objectCount = 10;
-    this.actionCount = 5;
+    this.objectCount = 10;//ILMEISESTI VAIN ALUSSA
+    this.actionCount = 5;//ILMEISESTI VAIN ALUSSA
     
     var oncePerS;//interval
     
@@ -186,6 +188,7 @@ var taskManager = new function(){
         }else{
             console.log("Task failed");
         }
+        addPoints(succeeded);
         document.dispatchEvent(new CustomEvent('taskFinished', {detail:{currentTask:currentTask, succeeded:succeeded}}));
         languageManager.addNewRule();
         world.makePreviousDeedsObsolete();
@@ -214,6 +217,39 @@ var taskManager = new function(){
         assert.areDef(newAction, newTarget, newTask);
         assert.areDef(newTask.action, newTask.target);
         return newTask;
+    };
+    
+    //VOISI MIETTIÄ SELITYSTÄ ETTÄ TARVITSEEKO SITÄ VAI VOISIKO OLLA VAIN STRINGI
+    var addPoints = function(taskSucceeded){
+        var originalPoints = points;
+        var additionalPoints;
+        var availableWtsMultiplier = availableActions.length * availableObjects.length;
+        var failureMultiplier = 10;
+        if(taskSucceeded){
+            additionalPoints = secondsLeft * availableWtsMultiplier;
+        }else{
+            additionalPoints = failureMultiplier * secondsLeft * availableWtsMultiplier;
+            console.assert(additionalPoints < 0, "Error: bug.");
+        }
+        var newPoints = originalPoints + additionalPoints;
+        points = newPoints;
+        var secondsLeftAtTheTime = secondsLeft;
+        document.dispatchEvent(new CustomEvent('pointsChanged',
+        {
+            detail:
+            {
+                newPoints:newPoints,
+                additionalPoints:additionalPoints,
+                explanation:
+                {
+                    secondsLeft:secondsLeftAtTheTime,
+                    availableActionsCount:availableActions.length,
+                    availableTargetsCount:availableObjects.length,
+                    failureMultiplier:failureMultiplier,
+                    succeeded:taskSucceeded
+                }
+            }
+        }));
     };
     
     /*

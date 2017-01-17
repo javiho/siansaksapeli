@@ -22,6 +22,7 @@ var ui = new function(){
     var objectsNextTurnInfo;
     var reduceActionsToAddButton;
     var reduceTargetsToAddButton;
+    var pointsInfo;
     //The above are jQuery objects
     var actionExecutionButton;
     
@@ -77,6 +78,7 @@ var ui = new function(){
         languageRulesArea = $('#languageRulesArea');
         actionsNextTurnInfo = $('#actionsNextTurnInfo');
         objectsNextTurnInfo = $('#objectsNextTurnInfo');
+        pointsInfo = $('#pointsInfo');
         actionExecutionButton.click(onActionExecutionButton);
         removeActionButton.click({wtType: wtTypes.action}, onRemoveWtButton);
         removeWoButton.click({wtType: wtTypes.target}, onRemoveWtButton);
@@ -148,6 +150,9 @@ var ui = new function(){
             assert.notNull(d);
             reactToAddedAvailableWts(d);
         });
+        document.addEventListener('pointsChanged', function(e){
+            updatePointsInfo(e.detail);
+        });
 //        document.addEventListener('availableWtsChanged', function(){
 //            ET TARVITA, JOS PIIRRETÄÄN ITSE BOKSI INPUTIN SEURATTUA
 //        });
@@ -168,6 +173,7 @@ var ui = new function(){
         instructionArea.append("Your task: " + instructions);
     };
     
+    //PITÄÄKÖ TÄMÄN OLLA ULKOPUOLISILLE NÄKYVÄ?
     this.changeTimerTime = function(newTimeSeconds){
         assert.isDef(newTimeSeconds)
         //murderChildren(instructionArea);
@@ -300,9 +306,26 @@ var ui = new function(){
         //...
     };
     
+    //MUTTA TÄMÄ EI UPDEITTAA PISTEITÄ!
     var updateOtherStateInfo = function(){
         actionsNextTurnInfo.text(wtsToAddCount.actions);
         objectsNextTurnInfo.text(wtsToAddCount.targets);
+    };
+    
+    /*
+     * o contains information about the new points and points change.
+     */
+    var updatePointsInfo = function(o){
+        assert.notNull(o);
+        var e = o.explanation;
+        var t = "" + o.newPoints;
+        t += ". Latest change: " + e.secondsLeft + " * " + e.availableActionsCount +
+                " * " + e.availableTargetsCount;
+        if(!e.succeeded){
+            t += " * " + e.failureMultiplier;
+        }
+        t += " = " + o.additionalPoints;
+        pointsInfo.text(t);
     };
     
     /*
@@ -343,9 +366,9 @@ var ui = new function(){
      * desc is it's own descendant.
      * EI KÄYTÖSSÄ
      */
-    var isDescOf = function(desc, parent){
+    /*var isDescOf = function(desc, parent){
         return desc.closest(parent).length > 0;
-    };
+    };*/
     
     /*
      * Return value: a world thing object wt, where wt.name == wtName.
@@ -396,10 +419,6 @@ var ui = new function(){
     };
     
     var reactToTaskCreated = function(task){
-        //var ti = task.instructionText;
-        //console.log("ti: " + ti);
-        //var gibberishedInst = languageManager.transformText(ti);
-        //changeInstructions(gibberishedInst);//TOIMIIKO?
         assert.isDef(task);
         changeInstructions(taskToInstructionText(task));
     };
@@ -446,7 +465,7 @@ var ui = new function(){
         return nameToSpaceless(name);
     };
     
-    //ONGELMA ON SE, ETTÄ ID:ISSÖ IE SAA OLLA VÄLILYÖNTEJÄ
+    //NIMI MUUTATTAVA nameToId TAI JOTAIN
     var nameToSpaceless = function(name){
         var withoutSpaces = name.replace(new RegExp(" ", "g"), '');
         return withoutSpaces;
