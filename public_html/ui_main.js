@@ -144,6 +144,7 @@ var ui = new function(){
         });
         document.addEventListener('languageRuleAdded', function(){
             fillLanguageRulesArea();
+            updateWtBlocksText();
         });
         document.addEventListener('availableWtsAdded', function(e){
             var d = e.detail;
@@ -225,7 +226,8 @@ var ui = new function(){
                 }
             }
         });
-        div.append(wtName);
+        div.data("name", wtName);
+        div.append(languageManager.transformText(wtName));
         div.addClass("wtBlock");
         div.addClass(wtType + "Block");
         return div;
@@ -360,6 +362,24 @@ var ui = new function(){
         //        selectedActionName + " and selectedTargetName is " + selectedTargetName);
     };
     
+    //KESKEN
+    var updateWtBlocksText = function(){
+        var wtBlocks = $('.wtBlock');
+        var newText;
+        //var child;
+        wtBlocks.each(function(i, e){
+            newText = $(this).data("name");
+            //console.log(newText);
+            newText = languageManager.transformText(newText);//"test replacement";
+            //console.log($(this).contents());
+            $(this).contents().replaceWith(newText);
+            //e.innerHTML = newText;
+            //child = e.children();
+            //child.replaceWith(newText);
+        });
+        
+    };
+    
     /*
      * Return value: is desc a descentant of parent.
      * Pre-condition: desc and parent are jQuery objects.
@@ -405,8 +425,9 @@ var ui = new function(){
     
     var taskToPresentableText = function(task){
         var asText = task.action.name + " " + task.target.name;
-        var gibberished = languageManager.transformText(asText);
-        return gibberished;
+        //var gibberished = languageManager.transformText(asText);
+        //return gibberished;
+        return asText;
     };
     
     var fillLanguageRulesArea = function(){
@@ -470,7 +491,6 @@ var ui = new function(){
         var withoutSpaces = name.replace(new RegExp(" ", "g"), '');
         return withoutSpaces;
     };
-    
 //    var murderChildren = function(el){
 //        while(el.childNodes.length > 0){
 //            el.removeChild(el.childNodes[0]);
