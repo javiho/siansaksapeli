@@ -23,6 +23,8 @@ var ui = new function(){
     var reduceActionsToAddButton;
     var reduceTargetsToAddButton;
     var pointsInfo;
+    var turnsUntilChangeInfo;
+    var turnCountInfo;
     //The above are jQuery objects
     var actionExecutionButton;
     
@@ -79,6 +81,8 @@ var ui = new function(){
         actionsNextTurnInfo = $('#actionsNextTurnInfo');
         objectsNextTurnInfo = $('#objectsNextTurnInfo');
         pointsInfo = $('#pointsInfo');
+        turnsUntilChangeInfo = $('#turnsUntilChangeInfo');
+        turnCountInfo = $('#turnCountInfo');
         actionExecutionButton.click(onActionExecutionButton);
         removeActionButton.click({wtType: wtTypes.action}, onRemoveWtButton);
         removeWoButton.click({wtType: wtTypes.target}, onRemoveWtButton);
@@ -166,6 +170,7 @@ var ui = new function(){
         
         messageLogArea.empty();
         
+        updateOtherStateInfo();
         reactToTaskCreated(initialTask);
     };
     
@@ -312,6 +317,7 @@ var ui = new function(){
     var updateOtherStateInfo = function(){
         actionsNextTurnInfo.text(wtsToAddCount.actions);
         objectsNextTurnInfo.text(wtsToAddCount.targets);
+        turnCountInfo.text(taskManager.getTasksPassed());
     };
     
     /*

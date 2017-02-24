@@ -24,6 +24,7 @@ var taskManager = new function(){
     var points = 0;
     var availableObjects = [];
     var availableActions = [];
+    var tasksPassed = 0;
     this.objectCount = 10;//ILMEISESTI VAIN ALUSSA
     this.actionCount = 5;//ILMEISESTI VAIN ALUSSA
     
@@ -143,6 +144,10 @@ var taskManager = new function(){
         return currentTask;
     };
     
+    this.getTasksPassed = function(){
+        return tasksPassed;
+    };
+    
     var secondPassed = function(){
         secondsLeft += -1;
         secondsToAbsolute += -1;
@@ -188,6 +193,7 @@ var taskManager = new function(){
         }else{
             console.log("Task failed");
         }
+        tasksPassed += 1;
         addPoints(succeeded);
         document.dispatchEvent(new CustomEvent('taskFinished', {detail:{currentTask:currentTask, succeeded:succeeded}}));
         languageManager.addNewRule();
