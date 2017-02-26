@@ -289,6 +289,12 @@ var ui = new function(){
             removedName = selectedTargetName;
         }//else throw "Error: erroneous wtType.";
         var removed = getWtByName(removedName);
+        var ct = taskManager.getCurrentTask();
+        if(removed.name === ct.target.name || removed.name === ct.action.name){
+            alert("Removing " + removed.name + " would make the game unwinnable, " +
+                    "since your task is to " + taskToPresentableText(ct));
+            return;
+        }
         taskManager.removeAvailableWts(removed);
         removeWtBlock(removed);
     };
