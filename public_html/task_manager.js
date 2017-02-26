@@ -11,12 +11,21 @@
 /*
  * REFAKTOROINTI:
  * Jaettava ui useaan tiedostoon.
+ * On ongelmallista, että ui käskee taskManagerin poistaa availableja ja sitten
+ * poistaa boksit. Ja toisessa tapauksessa taskManager poistaa itse ja lähettää
+ * viestin ui:lle. Vai onko?
  */
 
+/*
+ * Renewing wts means removing x random wts and replacing them with other random
+ * (possibly same) wts of same type.
+ */
 var taskManager = new function(){
     
     var defaultTaskTime = 10;//seconds
-    var defaultAbsoluteTaskTime = 20;//seconds
+    var defaultAbsoluteTaskTime = 20000;//seconds
+    var defaultChangeInterval = 2; //turns, minimum 1
+    var defaultRenewedAmount = 2; //how many available wts of each type is renewed.
     var secondsLeft = defaultTaskTime;//of default task time
     var secondsToAbsolute = defaultAbsoluteTaskTime;
     var currentTask;
@@ -25,6 +34,7 @@ var taskManager = new function(){
     var availableObjects = [];
     var availableActions = [];
     var tasksPassed = 0;
+    var turnsUntilChange = defaultChangeInterval;
     this.objectCount = 10;//ILMEISESTI VAIN ALUSSA
     this.actionCount = 5;//ILMEISESTI VAIN ALUSSA
     
@@ -74,32 +84,50 @@ var taskManager = new function(){
      * wts is not empty.
      */
     this.removeAvailableWts = function(wts){
+//        console.log("wts is:");
+//        console.log(wts.map(function(a){return a.name;}));
+//        console.log("available objects was:");
+//        console.log(availableObjects.map(function(a){return a.name;}));
+//        console.log("available actions was:");
+//        console.log(availableActions.map(function(a){return a.name;}));
         assert.isDef(wts);
         //console.log(wts);
         if(!Array.isArray(wts)){
-            availableActions = availableActions.filter(function(el){
-                return !(wts.name === el.name);
-            });
-            availableObjects = availableObjects.filter(function(el){
-                return !(wts.name === el.name);
-            });
-            return;
+            wts = [wts];
+//            availableActions = availableActions.filter(function(el){
+//                return !(wts.name === el.name);
+//            });
+//            availableObjects = availableObjects.filter(function(el){
+//                return !(wts.name === el.name);
+//            });
+//            return;
         }
         assert.arrHasContent(wts);
         if(world.isAction(wts[0])){
+            //console.log("is action");
             availableActions = availableActions.filter(function(el){
-                return wts.some(function(wt){
-                    wt.name === el.name;
+                var preserved = wts.some(function(wt){
+                    //console.log(wt.name + ", " + el.name + " are same: " + ())
+                    return wt.name === el.name;
                 }) === false;
+                //console.log(preserved);
+                return preserved;
             });
         }
         if(world.isWorldObject(wts[0])){
+            //console.log("is object");
             availableObjects = availableObjects.filter(function(el){
-                return wts.some(function(wt){
-                    wt.name === el.name;
+                var preserved = wts.some(function(wt){
+                    return wt.name === el.name;
                 }) === false;
+                //console.log(preserved);
+                return preserved;
             });
         }
+//        console.log("available objects is:");
+//        console.log(availableObjects.map(function(a){return a.name;}));
+//        console.log("available actions is:");
+//        console.log(availableActions.map(function(a){return a.name;}));
         //document.dispatchEvent(new CustomEvent('availableWtsChanged'));
     };
     
@@ -148,6 +176,10 @@ var taskManager = new function(){
         return tasksPassed;
     };
     
+    this.getTurnsUntilChange = function(){
+        return turnsUntilChange;
+    };
+    
     var secondPassed = function(){
         secondsLeft += -1;
         secondsToAbsolute += -1;
@@ -194,8 +226,13 @@ var taskManager = new function(){
             console.log("Task failed");
         }
         tasksPassed += 1;
+        turnsUntilChange -= 1;
         addPoints(succeeded);
         document.dispatchEvent(new CustomEvent('taskFinished', {detail:{currentTask:currentTask, succeeded:succeeded}}));
+        if(turnsUntilChange <= 0){
+            turnsUntilChange = defaultChangeInterval;
+            renewAvailableWts();
+        }
         languageManager.addNewRule();
         world.makePreviousDeedsObsolete();
         var newTask = generateNewTask();
@@ -256,6 +293,25 @@ var taskManager = new function(){
                 }
             }
         }));
+    };
+    
+    /*
+     * Replaces x available world objects and y available actions.
+     * Fires messages about removing and adding.
+     * POISTAMISESTA LÄHETETÄÄN ERIKSEEN VIESTIT, MUTTA LISÄÄMISESSÄ NE
+     * LÄHETTÄÄ LISÄÄVÄ FUKTIO, MIKÄ ON HÄMMENTÄVÄÄ.
+     */
+    var renewAvailableWts = function(){
+        var renewedActionsCount = defaultRenewedAmount <= availableActions.length ? defaultRenewedAmount : availableActions.length;
+        var renewedObjectsCount = defaultRenewedAmount <= availableObjects.length ? defaultRenewedAmount : availableObjects.length;
+        var removedActions = pickAvailableWts(availableActions, renewedActionsCount);
+        var removedObjects = pickAvailableWts(availableObjects, renewedObjectsCount);
+        taskManager.removeAvailableWts(removedActions);
+        taskManager.removeAvailableWts(removedObjects);
+        document.dispatchEvent(new CustomEvent('availableWtsRemoved', {detail:removedActions}));
+        document.dispatchEvent(new CustomEvent('availableWtsRemoved', {detail:removedObjects}));
+        taskManager.addAvailableWts(renewedActionsCount, wtTypes.action);
+        taskManager.addAvailableWts(renewedObjectsCount, wtTypes.target);
     };
     
     /*

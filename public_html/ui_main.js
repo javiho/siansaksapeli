@@ -155,11 +155,17 @@ var ui = new function(){
             assert.notNull(d);
             reactToAddedAvailableWts(d);
         });
+        document.addEventListener('availableWtsRemoved', function(e){
+            var d = e.detail;
+            assert.isDef(d);
+            removeWtBlocks(d);
+        });
         document.addEventListener('pointsChanged', function(e){
             updatePointsInfo(e.detail);
         });
 //        document.addEventListener('availableWtsChanged', function(){
 //            ET TARVITA, JOS PIIRRETÄÄN ITSE BOKSI INPUTIN SEURATTUA
+//            if(!areWtBlocksAndAvailableWtsConsistent()) throw "Error: bug.";
 //        });
         
         //EHKÄ OTETAAN MYÖHEMMIN KÄYTTÖÖN:
@@ -318,6 +324,7 @@ var ui = new function(){
         actionsNextTurnInfo.text(wtsToAddCount.actions);
         objectsNextTurnInfo.text(wtsToAddCount.targets);
         turnCountInfo.text(taskManager.getTasksPassed());
+        turnsUntilChangeInfo.text(taskManager.getTurnsUntilChange());
     };
     
     /*
@@ -368,7 +375,7 @@ var ui = new function(){
         //        selectedActionName + " and selectedTargetName is " + selectedTargetName);
     };
     
-    //KESKEN
+    //KESKEN - ONKO TOSIAAN?
     var updateWtBlocksText = function(){
         var wtBlocks = $('.wtBlock');
         var newText;
@@ -473,6 +480,15 @@ var ui = new function(){
         updateSelectedInfoArea();
         wtBlock.remove();
         //TARKISTETTAVA, ONKO NYKYINEN BLOKKISETTI KONSISTENNTTI TASK MANAGERIN AVAILABLEJEN KANSSA
+        //PAITSI ETTÄ EI VÄLTTÄMÄTTÄ HEIT OLE KONSISTENTTI, JOS POISTETAAN YKSI KERRALLAAN
+        //KÄYTTÖLIITTYMÄSTÄ NE, JOTKA ON JUURI POISTETTU TASK MANAGERISTA.
+    };
+    
+    var removeWtBlocks = function(wtBlocks){
+        assert.arrHasContent(wtBlocks);
+        wtBlocks.forEach(function(wtb){
+            removeWtBlock(wtb);
+        });
     };
     
     var reactToAddedAvailableWts = function(newWts){
@@ -486,6 +502,8 @@ var ui = new function(){
         });
         if(utility.isDef(newAcs)) addWtBlocks(actionSelection, newAcs, newAcs.length);
         if(utility.isDef(newObjs)) addWtBlocks(targetSelection, newObjs, newObjs.length);
+        // Must update turns until change.
+        updateOtherStateInfo();
     };
     
     var nameToIdPart = function(name){
@@ -496,6 +514,33 @@ var ui = new function(){
     var nameToSpaceless = function(name){
         var withoutSpaces = name.replace(new RegExp(" ", "g"), '');
         return withoutSpaces;
+    };
+    
+    /*
+     * HEIKKO PERFORMANSSI
+     */
+    var areWtBlocksAndAvailableWtsConsistent = function(){
+        var actionBlocks = actionSelection.children();
+        var objectBlocks = targetSelection.children();
+        var avActions = taskManager.getAvailableActions();
+        var avObjects = taskManager.getAvailableObjects();
+        if(actionBlocks.length !== avActions.length || objectBlocks !== avObjects.length){
+            return false;
+        }
+        var wtBlocks = $('.wtBlock');
+        var allSame = true;
+        var allAvailableWts = avActions.concat(avObjects);
+        wtBlocks.forEach(function(){
+            var wtBlockName = $(this).data("name");
+            if(!hasWt(wtBlockName, allAvailableWts)) allSame = false;
+        });
+        return allSame;
+        function hasWt(wtName, wts){
+            wts.forEach(function(wt){
+                if(wt.name !== wtName) return true;
+            });
+            return false;
+        }
     };
 //    var murderChildren = function(el){
 //        while(el.childNodes.length > 0){
