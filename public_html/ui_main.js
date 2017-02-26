@@ -260,6 +260,14 @@ var ui = new function(){
         //alert("action execution");
         //console.log("attempting to exectue with action " + selectedActionName +
         //        " and target " + selectedTargetName);
+        if(!utility.isDef(selectedActionName)){
+            alert("You haven't selected an action!");
+            return;
+        }
+        if(!utility.isDef(selectedTargetName)){
+            alert("You haven't selected a target!");
+            return;
+        }
         var selAc = getWtByName(selectedActionName);
         var selTarg = getWtByName(selectedTargetName);
         assert.areDef(selAc, selTarg);
