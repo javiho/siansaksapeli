@@ -512,9 +512,11 @@ var ui = new function(){
         updateSelectedInfoArea();
         //Tehtävä ei-kilkattavaksi
         //animoitava pois
-        wtBlock.css({position:'fixed'});
         //wtBlock.css({left: wtBlock.offset().left});
-        wtBlock.animate({left: '0px', bottom:'0px'}, 1000, void 0, function(){
+        var offset = wtBlock.offset();
+        wtBlock.css({position:'fixed'});
+        wtBlock.css({left:offset.left, top:offset.top});
+        wtBlock.animate({left: '0px', top:$(window).height()}, 1000, void 0, function(){
             wtBlock.remove();
         });
         //TARKISTETTAVA, ONKO NYKYINEN BLOKKISETTI KONSISTENNTTI TASK MANAGERIN AVAILABLEJEN KANSSA
