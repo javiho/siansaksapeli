@@ -215,8 +215,23 @@ var ui = new function(){
         for(var i = 0; i < count; i++){
             wt = wts[i];
             var wtBlock = createWtBlock(wt.name, wtType);
-            element.append(wtBlock);
+            addWtBlock(wtBlock, element);
+            //element.append(wtBlock);
         }
+    };
+    
+    /*
+     * Adds wtBlock and does the adding animation. Both parameters
+     * are jQuery objects.
+     */
+    var addWtBlock = function(wtBlock, elementToAdd){
+        elementToAdd.append(wtBlock);
+        var fPosition = wtBlock.offset();
+        wtBlock.css({position:'fixed'});
+        wtBlock.css({right:'0px', top:'0px'});
+        wtBlock.animate({top:fPosition.top, left:fPosition.left}, 1000, void 0, function(){
+            wtBlock.css({position:'static'});
+        });
     };
     
     /*
@@ -478,6 +493,9 @@ var ui = new function(){
         return inst;
     };
     
+    /*
+     * Removed wt block and does the removal animation.
+     */
     var removeWtBlock = function(wt){
         assert.isDef(wt);
         var wtBlock = $('#wtBlock' + nameToIdPart(wt.name));
@@ -492,7 +510,13 @@ var ui = new function(){
             selectedTargetName = void 0;
         }
         updateSelectedInfoArea();
-        wtBlock.remove();
+        //Tehtävä ei-kilkattavaksi
+        //animoitava pois
+        wtBlock.css({position:'fixed'});
+        //wtBlock.css({left: wtBlock.offset().left});
+        wtBlock.animate({left: '0px', bottom:'0px'}, 1000, void 0, function(){
+            wtBlock.remove();
+        });
         //TARKISTETTAVA, ONKO NYKYINEN BLOKKISETTI KONSISTENNTTI TASK MANAGERIN AVAILABLEJEN KANSSA
         //PAITSI ETTÄ EI VÄLTTÄMÄTTÄ HEIT OLE KONSISTENTTI, JOS POISTETAAN YKSI KERRALLAAN
         //KÄYTTÖLIITTYMÄSTÄ NE, JOTKA ON JUURI POISTETTU TASK MANAGERISTA.
@@ -532,6 +556,7 @@ var ui = new function(){
     
     /*
      * HEIKKO PERFORMANSSI
+     * EI OLE MITÄÄN PAIKKAA TOISTAISEKSI, MISSÄ TÄTÄ VOISI HELPOSTI KÄYTTÄÄ
      */
     var areWtBlocksAndAvailableWtsConsistent = function(){
         var actionBlocks = actionSelection.children();
