@@ -141,6 +141,7 @@ var ui = new function(){
         document.addEventListener('gameOver', function(){
             //console.log('game over listened');
             appendToMessageLog("Game over!", messageColors.red);
+            $('*').addClass('unclickable');
         });
         document.addEventListener('timeUp', function(e){
             var d = e.detail;
@@ -187,7 +188,7 @@ var ui = new function(){
     
     //PITÄÄKÖ TÄMÄN OLLA ULKOPUOLISILLE NÄKYVÄ?
     this.changeTimerTime = function(newTimeSeconds){
-        assert.isDef(newTimeSeconds)
+        assert.isDef(newTimeSeconds);
         //murderChildren(instructionArea);
         timerArea.empty();
         //var timeText = document.createTextNode("Seconds left: " + newTimeSeconds);
@@ -495,6 +496,7 @@ var ui = new function(){
     
     /*
      * Removed wt block and does the removal animation.
+     * TEHTÄVÄ POISTETTAVAT EI-KLIKATTAVIKSI ANIMAATION AIKANA
      */
     var removeWtBlock = function(wt){
         assert.isDef(wt);
@@ -510,13 +512,11 @@ var ui = new function(){
             selectedTargetName = void 0;
         }
         updateSelectedInfoArea();
-        //Tehtävä ei-kilkattavaksi
-        //animoitava pois
         //wtBlock.css({left: wtBlock.offset().left});
         var offset = wtBlock.offset();
         wtBlock.css({position:'fixed'});
         wtBlock.css({left:offset.left, top:offset.top});
-        wtBlock.animate({left: '0px', top:$(window).height()}, 1000, void 0, function(){
+        wtBlock.animate({left: '0px', top:$(window).height()}, 10000, void 0, function(){
             wtBlock.remove();
         });
         //TARKISTETTAVA, ONKO NYKYINEN BLOKKISETTI KONSISTENNTTI TASK MANAGERIN AVAILABLEJEN KANSSA

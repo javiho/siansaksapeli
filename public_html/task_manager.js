@@ -7,6 +7,8 @@
  * Jos klikkaa monta kertaa peräkkäin uusia viestejä lokiin, väri vaihtuu
  * suurella viiveellä.
  * Lisättävät wt:t vaikuttavat edellisen vuoron pisteisiin.
+ * Pelaaja voi suorittaa poistettavia actioneja ja objekteja, jos hän klikkaa
+ * niitä kun ne poistuvat animoidessa. Haittaako tämä?
  */
 /*
  * REFAKTOROINTI:
@@ -23,9 +25,10 @@
 var taskManager = new function(){
     
     var defaultTaskTime = 10;//seconds
-    var defaultAbsoluteTaskTime = 20000;//seconds
-    var defaultChangeInterval = 2; //turns, minimum 1
+    var defaultAbsoluteTaskTime = 20;//seconds
+    var defaultChangeInterval = 3; //turns, minimum 1
     var defaultRenewedAmount = 2; //how many available wts of each type is renewed.
+    var gameOverThreshold = -20000;
     var secondsLeft = defaultTaskTime;//of default task time
     var secondsToAbsolute = defaultAbsoluteTaskTime;
     var currentTask;
@@ -229,6 +232,11 @@ var taskManager = new function(){
         turnsUntilChange -= 1;
         addPoints(succeeded);
         document.dispatchEvent(new CustomEvent('taskFinished', {detail:{currentTask:currentTask, succeeded:succeeded}}));
+        if(isGameOver()){
+            handleGameOver();
+            window.clearInterval(oncePerS);
+            return;
+        }
         if(turnsUntilChange <= 0){
             turnsUntilChange = defaultChangeInterval;
             renewAvailableWts();
@@ -312,6 +320,14 @@ var taskManager = new function(){
         document.dispatchEvent(new CustomEvent('availableWtsRemoved', {detail:removedObjects}));
         taskManager.addAvailableWts(renewedActionsCount, wtTypes.action);
         taskManager.addAvailableWts(renewedObjectsCount, wtTypes.target);
+    };
+    
+    var isGameOver = function(){
+        return points <= gameOverThreshold;
+    };
+    
+    var handleGameOver = function(){
+        document.dispatchEvent(new CustomEvent('gameOver'));
     };
     
     /*
