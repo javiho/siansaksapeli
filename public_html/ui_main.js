@@ -31,6 +31,8 @@ var ui = new function(){
     //var _objects; POISTETTU HILJATTAIN
     //var _actions;
     var wtsToAddCount = {actions:0, targets:0};
+    var wtBlockAddAnimationDuration = 1000;
+    var wtBlockRemoveAnimationDuration = 1000;
     
     //jQuery
 //    var selectedTargetImage;//TARVITAANKO?
@@ -230,7 +232,7 @@ var ui = new function(){
         var fPosition = wtBlock.offset();
         wtBlock.css({position:'fixed'});
         wtBlock.css({right:'0px', top:'0px'});
-        wtBlock.animate({top:fPosition.top, left:fPosition.left}, 1000, void 0, function(){
+        wtBlock.animate({top:fPosition.top, left:fPosition.left}, wtBlockAddAnimationDuration, void 0, function(){
             wtBlock.css({position:'static'});
         });
     };
@@ -516,7 +518,7 @@ var ui = new function(){
         var offset = wtBlock.offset();
         wtBlock.css({position:'fixed'});
         wtBlock.css({left:offset.left, top:offset.top});
-        wtBlock.animate({left: '0px', top:$(window).height()}, 10000, void 0, function(){
+        wtBlock.animate({left: '0px', top:$(window).height()}, wtBlockRemoveAnimationDuration, void 0, function(){
             wtBlock.remove();
         });
         //TARKISTETTAVA, ONKO NYKYINEN BLOKKISETTI KONSISTENNTTI TASK MANAGERIN AVAILABLEJEN KANSSA
